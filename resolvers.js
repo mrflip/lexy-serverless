@@ -1,10 +1,14 @@
 // add to handler.js
-import dynamodb from 'serverless-dynamodb-client';
+import dynamodb              from 'serverless-dynamodb-client';
+import { GraphQLScalarType } from 'graphql';
+import { Kind }              from 'graphql/language';
 
 let docClient;
 
-console.log(process.env.NODE_ENV);
-console.log(process.env);
+// console.log(process.env.NODE_ENV);
+// console.log(process.env);
+
+
 if (process.env.NODE_ENV === 'production') {
   const AWSXRay = require('aws-xray-sdk'); // eslint-disable-line global-require
   const AWS = AWSXRay.captureAWS(require('aws-sdk')); // eslint-disable-line global-require
@@ -24,6 +28,9 @@ const promisify = foo =>
       }
     });
   });
+
+
+
 
 const data = {
   getPaginatedTweets(handle, args) {
@@ -125,4 +132,20 @@ export const resolvers = {
   User: {
     tweets: (obj, args) => data.getPaginatedTweets(obj.handle, args),
   },
+  Date: new GraphQLScalarType({
+    name: 'Date',
+    description: 'Date custom scalar type',
+    parseValue(value) {
+      return new Date(value); // value from the client
+    },
+    serialize(value) {
+      return value.getTime(); // value sent to the client
+    },
+    parseLiteral(ast) {
+      if (ast.kind === Kind.INT) {
+        return new Date(ast.value) // ast value is always in string format
+      }
+      return null;
+    },
+  }),
 };
