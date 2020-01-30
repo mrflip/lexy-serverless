@@ -22,6 +22,10 @@ lib-cov
 coverage
 *.lcov
 
+# Keys
+.env*
+.secret*
+
 # nyc test coverage
 .nyc_output
 

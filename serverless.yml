@@ -16,6 +16,11 @@ service: samwise
 app: samwise
 org: mrflip
 
+plugins:
+  - serverless-dynamodb-local
+  - serverless-offline
+  - serverless-webpack
+
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
 # frameworkVersion: "=X.X.X"
@@ -23,6 +28,8 @@ org: mrflip
 provider:
   name: aws
   runtime: nodejs12.x
+  stage: dev
+  region: us-east-1
 
 # you can overwrite defaults here
 #  stage: dev
@@ -44,6 +51,26 @@ provider:
 #            - "Ref" : "ServerlessDeploymentBucket"
 #            - "/*"
 
+custom:
+  serverless-offline:
+    port: 4000
+  webpack:
+    includeModules: true
+  dynamodb:
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
+      seed: true
+    seed:
+      test:
+        sources:
+          - table: Users
+            sources: [seed-data/Users.json]
+          - table: Tweets
+            sources: [seed-data/Tweets.json]
+
+
 # you can define service wide environment variables here
 #  environment:
 #    variable1: value1
@@ -58,8 +85,21 @@ provider:
 #    - exclude-me-dir/**
 
 functions:
+  graphql:
+    handler: handler.graphqlHandler
+    role: ServiceRole
+    events:
+    - http:
+        path: graphql
+        method: post
+        cors: true
+    - http:
+        path: graphql
+        method: get
   hello:
     handler: handler.hello
+
+
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
@@ -101,12 +141,129 @@ functions:
 #      variable2: value2
 
 # you can add CloudFormation resource templates here
-#resources:
-#  Resources:
-#    NewResource:
-#      Type: AWS::S3::Bucket
-#      Properties:
-#        BucketName: my-new-bucket
+esources:
+  Resources:
+    UserTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        KeySchema:
+          -
+            AttributeName: handle
+            KeyType: HASH
+        AttributeDefinitions:
+          -
+            AttributeName: handle
+            AttributeType: S
+        ProvisionedThroughput:
+          ReadCapacityUnits: 10
+          WriteCapacityUnits: 10
+        TableName: 'Users'
+    TweetsTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        KeySchema:
+          -
+            AttributeName: tweet_id
+            KeyType: HASH
+        AttributeDefinitions:
+          -
+            AttributeName: tweet_id
+            AttributeType: S
+          -
+            AttributeName: handle
+            AttributeType: S
+          -
+            AttributeName: retweet_count
+            AttributeType: N
+          -
+            AttributeName: created_at
+            AttributeType: S
+        ProvisionedThroughput:
+          ReadCapacityUnits: 10
+          WriteCapacityUnits: 10
+        TableName: 'Tweets'
+        GlobalSecondaryIndexes:
+          -
+            IndexName: top-index
+            KeySchema:
+              -
+                AttributeName: handle
+                KeyType: HASH
+              -
+                AttributeName: retweet_count
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+            ProvisionedThroughput:
+              ReadCapacityUnits: 50
+              WriteCapacityUnits: 50
+          -
+            IndexName: tweet-index
+            KeySchema:
+              -
+                AttributeName: handle
+                KeyType: HASH
+              -
+                AttributeName: created_at
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+            ProvisionedThroughput:
+              ReadCapacityUnits: 50
+              WriteCapacityUnits: 50
+    ServiceRole:
+      Type: "AWS::IAM::Role"
+      Properties:
+        RoleName: "DynamoRole"
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            -
+              Effect: "Allow"
+              Principal:
+                Service:
+                  - "lambda.amazonaws.com"
+              Action:
+                - "sts:AssumeRole"
+        Policies:
+          -
+            PolicyName: "Dynamo-ServiceRole-Policy"
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                -
+                  Effect: "Allow"
+                  Action:
+                    - "dynamodb:Query"
+                    - "dynamodb:BatchWriteItem"
+                    - "dynamodb:GetItem"
+                    - "dynamodb:DeleteItem"
+                    - "dynamodb:PutItem"
+                    - "dynamodb:Scan"
+                    - "dynamodb:UpdateItem"
+                  Resource:
+                    - "arn:aws:dynamodb:us-east-1:*:table/Users"
+                    - "arn:aws:dynamodb:us-east-1:*:table/Users/*"
+                    - "arn:aws:dynamodb:us-east-1:*:table/Tweets"
+                    - "arn:aws:dynamodb:us-east-1:*:table/Tweets/*"
+    # XrayLambdaRolePolicy:
+    #   Type: "AWS::IAM::Policy"
+    #   Properties:
+    #     PolicyName: "xray-policy"
+    #     PolicyDocument:
+    #       Version: "2012-10-17"
+    #       Statement:
+    #         -
+    #           Effect: "Allow"
+    #           Action:
+    #             - "xray:PutTraceSegments"
+    #             - "xray:PutTelemetryRecords"
+    #           Resource:
+    #             - "*"
+    #     Roles:
+    #       - Ref: ServiceRole
+
+
 #  Outputs:
 #     NewOutput:
 #       Description: "Description for the output"
