@@ -1,4 +1,26 @@
 {
+  "name": "tooksome-samwise",
+  "version": "0.0.0",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:mrflip/samwise.git"
+  },
+  "scripts": {
+    "test": "jest",
+    "dynamodb-generate-seed-data": "cd seed-data && node create_seed_data.js",
+    "dynamodb-insert-seed-data-prod": "cd seed-data && node insert_seed_data_prod.js",
+    "start": "yarn dynamodb-generate-seed-data && serverless dynamodb install && yarn launch",
+    "launch": "env-cmd -f ./.secrets.env.local serverless offline start",
+    "deploy-prod": "yarn dynamodb-generate-seed-data && env-cmd -f .secrets.env.prod serverless --stage=production deploy && yarn dynamodb-insert-seed-data-prod"
+  },
+  "dependencies": {
+    "apollo-server-lambda": "^2.9.16",
+    "aws-xray-sdk": "^2.5.0",
+    "babel-polyfill": "^6.26.0",
+    "graphql": "^14.6.0",
+    "serverless-dynamodb-client": "^0.0.2"
+  },
   "devDependencies": {
     "apollo-server-module-graphiql": "^1.4.0",
     "aws-sdk": "^2.610.0",
@@ -17,20 +39,5 @@
     "serverless-webpack": "^5.3.1",
     "webpack": "^4.41.5",
     "webpack-node-externals": "^1.7.2"
-  },
-  "scripts": {
-    "test": "jest",
-    "dynamodb-generate-seed-data": "cd seed-data && node create_seed_data.js",
-    "dynamodb-insert-seed-data-prod": "cd seed-data && node insert_seed_data_prod.js",
-    "start": "yarn dynamodb-generate-seed-data && serverless dynamodb install && yarn launch",
-    "launch": "env-cmd -f ./.secrets.env.local serverless offline start",
-    "deploy-prod": "yarn dynamodb-generate-seed-data && env-cmd -f .secrets.env.prod serverless --stage=production deploy && yarn dynamodb-insert-seed-data-prod"
-  },
-  "dependencies": {
-    "apollo-server-lambda": "^2.9.16",
-    "aws-xray-sdk": "^2.5.0",
-    "babel-polyfill": "^6.26.0",
-    "graphql": "^14.6.0",
-    "serverless-dynamodb-client": "^0.0.2"
   }
 }
