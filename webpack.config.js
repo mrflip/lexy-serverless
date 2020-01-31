@@ -11,6 +11,7 @@ module.exports = {
   externals: [nodeExternals()],
   module: {
     rules: [
+      { test: /\.graphql/, use: [ {loader: 'file-loader', options: { name: '[name].[ext]', } } ], }, // outputPath: 'images/'
       {
         test: /\.js$/,
         use: [

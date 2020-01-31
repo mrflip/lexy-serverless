@@ -3,120 +3,119 @@ type Mutation {
   # Create a tweet for a user
   # consumer keys and tokens are not required for dynamo integration
   createTweet(
-    tweet:                String!,
-    consumer_key:         String,
-    consumer_secret:      String,
-    access_token_key:     String,
-    access_token_secret:  String,
-    created_at:           String!
-  ): Tweet!
+    tweet:                	String!,
+    consumer_key:         	String,
+    consumer_secret:      	String,
+    access_token_key:     	String,
+    access_token_secret:  	String,
+    created_at:           	String!
+  ): 	Tweet!
 
   # Delete User Tweet
   deleteTweet(
-    tweet_id:             String!,
-    consumer_key:         String,
-    consumer_secret:      String,
-    access_token_key:     String,
-    access_token_secret:  String
-  ): Tweet!
+    tweet_id:             	String!,
+    consumer_key:         	String,
+    consumer_secret:      	String,
+    access_token_key:     	String,
+    access_token_secret:  	String
+  ): 	Tweet!
 
   # Retweet existing Tweet
   reTweet(
-    tweet_id:             String!,
-    consumer_key:         String,
-    consumer_secret:      String,
-    access_token_key:     String,
-    access_token_secret:  String
-  ): Tweet!
+    tweet_id:             	String!,
+    consumer_key:         	String,
+    consumer_secret:      	String,
+    access_token_key:     	String,
+    access_token_secret:  	String
+  ): 	Tweet!
 
   # Update existing Tweet
   updateTweet(
-    tweet_id:             String!,
-    tweet:                String!
-  ): Tweet!
+    tweet_id:             	String!,
+    tweet:                	String!
+  ): 	Tweet!
 
   # Create user info is available in dynamo integration
   updateUserInfo(
-    location:             String!,
-    description:          String!,
-    name:                 String!,
-    followers_count:      Int!,
-    friends_count:        Int!,
-    favourites_count:     Int!,
-    following: [String!]!
-  ): User!
+    location:             	String!,
+    description:          	String!,
+    name:                 	String!,
+    followers_count:      	Int!,
+    friends_count:        	Int!,
+    favourites_count:     	Int!,
+    following: 	[String!]!
+  ): 	User!
 
   create_product(
-    id:           ID!,
-    name:         String!,
-    description:  String,
-    url:          String,
-    image_url:    String,
-    isKindOf:     ID,
-    logo_url:     String,
-    manufacturer: String,
-    category:     String, # slashed hierarchy
-    rating_agg:   Float,  #
-    rating_votes: Int,
-    sku:          String,
-    product_code: String, # isbn, etc
-    mpn:          String, # Manufacturer's Product Number
-    nsn:          String, # NATO Product Number
-    gtin:         String,
-    lot_id:       String,
-    length: Float,
-    width: Float,
-    height: Float,
-    weight: Float,
-    color:        String
-  ): Product!
+    id:           	ID!,
+    name:         	String!,
+    description:  	String,
+    url:          	String,
+    image_url:    	String,
+    isKindOf:     	ID,
+    # logo_url:     	String,
+    # manufacturer: 	String,
+    # category:     	String, # slashed hierarchy
+    # rating_agg:   	Float,  #
+    # rating_votes: 	Int,
+    # sku:          	String,
+    # product_code: 	String, # isbn, etc
+    # mpn:          	String, # Manufacturer's Product Number
+    # nsn:          	String, # NATO Product Number
+    # gtin:         	String,
+    # lot_id:       	String,
+    # length:     	Float,
+    # width:      	Float,
+    # height:     	Float,
+    # weight:     	Float,
+    # color:        	String
+  ): 	Product!
 
   update_product(
-    id:           ID!,
-    name:         String!,
-    description:  String,
-    url:          String,
-    image_url:    String,
-    isKindOf:     ID,
-    logo_url:     String,
-    manufacturer: String,
-    category:     String, # slashed hierarchy
-    rating_agg:   Float,  #
-    rating_votes: Int,
-    sku:          String,
-    product_code: String, # isbn, etc
-    mpn:          String, # Manufacturer's Product Number
-    nsn:          String, # NATO Product Number
-    gtin:         String,
-    lot_id:       String,
-    length: Float,
-    width: Float,
-    height: Float,
-    weight: Float,
-    color:        String
-  ): Product!
+    id:           	ID!,
+    name:         	String!,
+    description:  	String,
+    url:          	String,
+    image_url:    	String,
+    isKindOf:     	ID,
+    # logo_url:     	String,
+    # manufacturer: 	String,
+    # category:     	String, # slashed hierarchy
+    # rating_agg:   	Float,  #
+    # rating_votes: 	Int,
+    # sku:          	String,
+    # product_code: 	String, # isbn, etc
+    # mpn:          	String, # Manufacturer's Product Number
+    # nsn:          	String, # NATO Product Number
+    # gtin:         	String,
+    # lot_id:       	String,
+    # length:      	Float,
+    # width:       	Float,
+    # height:      	Float,
+    # weight:      	Float,
+    # color:        	String
+  ): 	Product!
 
   delete_product(
-    id:         ID!
-  ): Product!
-
+    id:         	ID!
+  ): 	Product!
 
 }
 
 type Query {
-  meInfo(     consumer_key: String, consumer_secret: String): User!
-  getUserInfo(handle: String!, consumer_key: String, consumer_secret: String): User!
+  meInfo(     consumer_key: 	String, consumer_secret: 	String): 	User!
+  getUserInfo(handle: 	String!, consumer_key: 	String, consumer_secret: 	String): 	User!
 
   # search functionality is available in elasticsearch integration
-  searchAllTweetsByKeyword(keyword: String!): TweetConnection
+  searchAllTweetsByKeyword(keyword: String!): 	TweetConnection
 }
 
 directive @aws_subscribe(mutations: [String]) on FIELD_DEFINITION
 
 
 type Subscription {
-  addTweet:          Tweet
-  @aws_subscribe(mutations: ["createTweet"])
+  addTweet: Tweet
+  @aws_subscribe(mutations: 	["createTweet"])
 }
 
 # type Merchant {
@@ -141,16 +140,16 @@ enum VolumeUnit { LITER, MILLILITER, OUNCEVOL, GALLON }
 
 # https://schema.org/Place
 type Place {
-  id:           ID!
-  name:         String!
-  image_url:    String
-  scope:        String # site, building, branch_code, floor, room, cabinet, position, etc.
+  id:           	ID!
+  name:         	String!
+  image_url:    	String
+  scope:        	String # site, building, branch_code, floor, room, cabinet, position, etc.
   #
-  # address:      String
-  # longitude:    Float
-  # latitude:     Float
+  # address:      	String
+  # longitude:    	Float
+  # latitude:     	Float
   #
-  contained_in: Place
+  contained_in: 	Place
 }
 
 ##
@@ -159,8 +158,8 @@ type Place {
 
 # Mapping of products that should be in each space
 type ProductCollection {
-  id:           ID!
-  name:         String!  
+  id:           	ID!
+  name:         	String!  
 }
 
 # Totals of stock across all the installed spaces
@@ -184,51 +183,51 @@ type ProductCollection {
 
 # https://schema.org/Product
 type Product {
-  id:           ID!
-  name:         String!
-  description:  String
-  url:          String
-  image_url:    String
-  isKindOf:     ProductKind
+  id:           	ID!
+  name:         	String!
+  description:  	String
+  url:          	String
+  image_url:    	String
+  isKindOf:     	ProductKind
+  # #
+  # #
+  # logo_url:     	String
+  # manufacturer: 	String
+  # # brand:      	String
+  # # model:      	String
+  # category:     	String # slashed hierarchy
+  # #
+  # #
+  # rating_agg:   	Float  #
+  # rating_votes: 	Int
+  # #
+  # sku:          	String
+  # product_code: 	String # isbn, etc
+  # mpn:          	String # Manufacturer's Product Number
+  # nsn:          	String # NATO Product Number
+  # gtin:         	String
+  # lot_id:       	String
+  # #
+  # length(unit: 	LengthUnit = METER): 	Float
+  # width(unit: 	LengthUnit = METER): 	Float
+  # height(unit: 	LengthUnit = METER): 	Float
+  # weight(unit: 	WeightUnit = KILOGRAM): Float
+  # color:        	String
   #
-  #
-  logo_url:     String
-  manufacturer: String
-  # brand:      String
-  # model:      String
-  category:     String # slashed hierarchy
-  #
-  #
-  rating_agg:   Float  #
-  rating_votes: Int
-  #
-  sku:          String
-  product_code: String # isbn, etc
-  mpn:          String # Manufacturer's Product Number
-  nsn:          String # NATO Product Number
-  gtin:         String
-  lot_id:       String
-  #
-  length(unit: LengthUnit = METER): Float
-  width(unit: LengthUnit = METER): Float
-  height(unit: LengthUnit = METER): Float
-  weight(unit: WeightUnit = KILOGRAM): Float
-  color:        String
-  #
-  # offers:     [Offer]
-  # itemCondition: 
+  # offers:     	[Offer]
+  # itemCondition: 	
   # hasMerchantReturnPolicy:
-  # isConsumableFor: Product
-  # isRelatedTo:     Product
+  # isConsumableFor: 	Product
+  # isRelatedTo:     	Product
   #
 }
 
 ## "Toilet Paper" is a ProductKind; "Charmin Ultra Soft 24 Mega Rolls" is a Product
 type ProductKind {
-  id:            ID!
-  name:          String!
-  description:   String
-  image_url:     String
+  id:            	ID!
+  name:          	String!
+  description:   	String
+  image_url:     	String
   # http://www.productontology.org/id/Racing_bicycle
 }
 
@@ -236,56 +235,56 @@ type ProductKind {
 ## serial #234234 and lots of stickers on it and a crack in the corner
 ## of its screen"
 type IndividualProduct {
-  id:            ID!
-  name:          String!
-  description:   String
-  serial_number: String
+  id:            	ID!
+  name:          	String!
+  description:   	String
+  serial_number: 	String
 }
 
 type Tweet {
-  tweet_id:          String!
-  tweet:             String!
-  retweeted:         Boolean
-  retweet_count:     Int
-  favorited:         Boolean
-  created_at:        String!
+  tweet_id:          	String!
+  tweet:             	String!
+  retweeted:         	Boolean
+  retweet_count:     	Int
+  favorited:         	Boolean
+  created_at:        	String!
 }
 
 type TweetConnection {
-  items: [Tweet!]!
-  nextToken: Token
+  items: 	        [Tweet!]!
+  nextToken: 	        Token
 }
 
 input TokenInput {
-  tweet_id :         String!
-  created_at:        String!
-  handle:            String!
+  tweet_id :         	String!
+  created_at:        	String!
+  handle:            	String!
 }
 
 type Token {
-  tweet_id :         String!
-  created_at:        String!
-  handle:            String!
+  tweet_id :         	String!
+  created_at:        	String!
+  handle:            	String!
 }
 
 type User {
-  name:              String!
-  handle:            String!
-  location:          String!
-  description:       String!
-  followers_count:   Int!
-  friends_count:     Int!
-  favourites_count:  Int!
-  following:         [String!]!
-  topTweet:          Tweet
+  name:              	String!
+  handle:            	String!
+  location:          	String!
+  description:       	String!
+  followers_count:   	Int!
+  friends_count:     	Int!
+  favourites_count:  	Int!
+  following:         	[String!]!
+  topTweet:          	Tweet
   tweets(limit: Int, nextToken: TokenInput): TweetConnection
 
   # search functionality is available in elasticsearch integration
-  searchTweetsByKeyword(keyword: String!): TweetConnection
+  searchTweetsByKeyword(keyword: 	String!): 	TweetConnection
 }
 
 schema {
-  query:              Query
-  mutation:           Mutation
-  subscription:       Subscription
+  query:              	Query
+  mutation:           	Mutation
+  subscription:       	Subscription
 }

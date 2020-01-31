@@ -20,6 +20,7 @@ plugins:
   - serverless-dynamodb-local
   - serverless-offline
   - serverless-webpack
+  - serverless-dotenv-plugin
 
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
@@ -31,6 +32,8 @@ provider:
   stage: dev
   region: us-east-1
 
+foo:
+  
 # you can overwrite defaults here
 #  stage: dev
 #  region: us-east-1
@@ -56,6 +59,8 @@ custom:
     port: 4000
   webpack:
     includeModules: true
+    excludeFiles:   "*.test.*"
+    keepOutputDirectory: true
   dynamodb:
     stages:
       - ${self:provider.stage}
@@ -98,8 +103,15 @@ functions:
     - http:
         path: graphql
         method: get
+        cors: true
   hello:
     handler: handler.hello
+    role: ServiceRole
+    events:
+    - http:
+        path: hello
+        method: get
+        cors: true
 
 
 #    The following are a few example events you can configure
