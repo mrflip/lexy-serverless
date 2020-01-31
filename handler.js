@@ -12,46 +12,48 @@ console.log(__dirname);
 console.log(fs.readFileSync('./schema.graphql', 'utf8').substring(1,60));
 console.log("************************************");
 
-  const server = new ApolloServer({
-    typeDefs: schema,
-    resolvers,
-    formatError: error => {
-      console.log(error);
-      return error;
-    },
-    formatResponse: response => {
-      console.log(response);
-      return response;
-    },
-    context: ({ event, context }) => ({
-      headers: event.headers,
-      functionName: context.functionName,
-      event,
-      context,
-    }),
-    playground: {
-      endpoint: process.env.REACT_APP_GRAPHQL_ENDPOINT
-              ? process.env.REACT_APP_GRAPHQL_ENDPOINT
-              : '/production/graphql',
-    },
-    tracing: true,
-  });
+const server = new ApolloServer({
+  typeDefs: schema,
+  resolvers,
+  formatError: error => {
+    console.log(error);
+    return error;
+  },
+  formatResponse: response => {
+    console.log(response);
+    return response;
+  },
+  context: ({ event, context }) => ({
+    headers: event.headers,
+    functionName: context.functionName,
+    event,
+    context,
+  }),
+  playground: {
+    endpoint: process.env.REACT_APP_GRAPHQL_ENDPOINT
+            ? process.env.REACT_APP_GRAPHQL_ENDPOINT
+            : '/production/graphql',
+  },
+  tracing: true,
+});
 
 
-  exports.graphqlHandler = server.createHandler({
-    cors: {
-      origin: '*',
-    },
-  });
+exports.graphqlHandler = server.createHandler({
+  cors: {
+    origin: '*',
+  },
+});
 
 
-  module.exports.hello = async event => {
-    return {
-      statusCode: 200,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(
-        {
-        message: 'Go Serverless v1.0! Your function executed successfully!',
+module.exports.hello = async event => {
+  console.log("Hello to the logs!");
+  console.log(JSON.stringify(event));
+  return {
+    statusCode: 200,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(
+      {
+        message: 'Hello from Tooksome!',
         input: event,
       },
       null,
