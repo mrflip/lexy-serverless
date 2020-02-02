@@ -8,7 +8,6 @@ let docClient;
 // console.log(process.env.NODE_ENV);
 // console.log(process.env);
 
-
 if (process.env.NODE_ENV === 'production') {
   const AWSXRay = require('aws-xray-sdk'); // eslint-disable-line global-require
   const AWS = AWSXRay.captureAWS(require('aws-sdk')); // eslint-disable-line global-require
@@ -22,7 +21,9 @@ const promisify = foo =>
   new Promise((resolve, reject) => {
     foo((error, result) => {
       if (error) {
+        console.log("**** OH NOES ****");
         reject(error);
+        console.log("================");
       } else {
         resolve(result);
       }
@@ -30,9 +31,62 @@ const promisify = foo =>
   });
 
 
-
-
 const data = {
+  getProducts(args) {
+    return promisify(callback => {
+      console.log("ARGS");
+      console.log(args)
+      const params = {
+        TableName: 'Products',
+        Limit: args.limit,
+        Select: 'ALL_ATTRIBUTES',
+      };
+      console.log("HERE!!!!!");
+      docClient.scan(params, callback);
+    }).catch(err => {
+      console.log("&&&&&&&&&&& caught");
+      console.log(err);
+    }).then(result => {
+      const prod_items = [];
+      let prodList;
+
+      console.log("*************");
+      console.log(result);
+      console.log("*************");
+
+      if (result.Items.length >= 1) {
+        prodList = {
+          items: [],
+        };
+      }
+
+      result.Items.forEach((product) => {
+        prod_items.push({
+          id: product.id,
+          name: product.name,
+          description: product.description,
+          url: product.url,
+          image_url: product.image_url,
+          isKindOf: product.isKindOf,
+          manufacturer: product.manufacturer,
+          category: product.category,
+          mpn: product.mpn,
+          nsn: product.nsn,
+          gtin: product.gtin,
+          brand: product.brand
+        });
+      });
+
+      prodList.items = prod_items;
+      if (result.LastEvaluatedKey) {
+        prodList.nextToken = {
+          id: result.LastEvaluatedKey.id
+        }
+      }
+      return prodList;
+    });
+  },
+
   getPaginatedTweets(handle, args) {
     return promisify(callback => {
       const params = {
@@ -92,6 +146,7 @@ const data = {
       return listOfTweets;
     });
   },
+
   getUserInfo(args) {
     return promisify(callback =>
       docClient.query(
@@ -128,6 +183,7 @@ const data = {
 export const resolvers = {
   Query: {
     getUserInfo: (root, args) => data.getUserInfo(args),
+    getProducts: (root, args) => data.getProducts(args),
   },
   User: {
     tweets: (obj, args) => data.getPaginatedTweets(obj.handle, args),

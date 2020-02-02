@@ -76,6 +76,8 @@ custom:
             sources: [seed-data/Users.json]
           - table: Tweets
             sources: [seed-data/Tweets.json]
+          - table: Products
+            sources: [seed-data/Products.json]
 
 
 # you can define service wide environment variables here
@@ -94,7 +96,7 @@ custom:
 functions:
   graphql:
     handler: handler.graphqlHandler
-    role: ServiceRole
+    role: LambdaDynamoReader
     events:
     - http:
         path: graphql
@@ -106,7 +108,7 @@ functions:
         cors: true
   hello:
     handler: handler.hello
-    role: ServiceRole
+    role: LambdaDynamoReader
     events:
     - http:
         path: hello
@@ -157,9 +159,26 @@ functions:
 # you can add CloudFormation resource templates here
 resources:
   Resources:
+    ProductTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: "Products"
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType:       HASH
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+        BillingMode: PAY_PER_REQUEST
+        # ProvisionedThroughput:
+        #   ReadCapacityUnits: 10
+        #   WriteCapacityUnits: 10
     UserTable:
       Type: 'AWS::DynamoDB::Table'
       Properties:
+        TableName: 'Users'
         KeySchema:
           -
             AttributeName: handle
@@ -168,13 +187,14 @@ resources:
           -
             AttributeName: handle
             AttributeType: S
-        ProvisionedThroughput:
-          ReadCapacityUnits: 10
-          WriteCapacityUnits: 10
-        TableName: 'Users'
+        BillingMode: PAY_PER_REQUEST
+        # ProvisionedThroughput:
+        #   ReadCapacityUnits: 10
+        #   WriteCapacityUnits: 10
     TweetsTable:
       Type: 'AWS::DynamoDB::Table'
       Properties:
+        TableName: 'Tweets'
         KeySchema:
           -
             AttributeName: tweet_id
@@ -192,10 +212,10 @@ resources:
           -
             AttributeName: created_at
             AttributeType: S
-        ProvisionedThroughput:
-          ReadCapacityUnits: 10
-          WriteCapacityUnits: 10
-        TableName: 'Tweets'
+        BillingMode: PAY_PER_REQUEST
+        # ProvisionedThroughput:
+        #   ReadCapacityUnits: 10
+        #   WriteCapacityUnits: 10
         GlobalSecondaryIndexes:
           -
             IndexName: top-index
@@ -208,9 +228,9 @@ resources:
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL
-            ProvisionedThroughput:
-              ReadCapacityUnits: 50
-              WriteCapacityUnits: 50
+            # ProvisionedThroughput:
+            #   ReadCapacityUnits: 10
+            #   WriteCapacityUnits: 10
           -
             IndexName: tweet-index
             KeySchema:
@@ -222,13 +242,13 @@ resources:
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL
-            ProvisionedThroughput:
-              ReadCapacityUnits: 50
-              WriteCapacityUnits: 50
-    ServiceRole:
+            # ProvisionedThroughput:
+            #   ReadCapacityUnits: 10
+            #   WriteCapacityUnits: 10
+    LambdaDynamoReader:
       Type: "AWS::IAM::Role"
       Properties:
-        RoleName: "DynamoRole"
+        RoleName: "LambdaDynamoReader"
         AssumeRolePolicyDocument:
           Version: "2012-10-17"
           Statement:
@@ -240,6 +260,19 @@ resources:
               Action:
                 - "sts:AssumeRole"
         Policies:
+          -
+            PolicyName: "CloudWatch-Logger-Policy"
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                -
+                  Effect: "Allow"
+                  Action:
+                    - "logs:CreateLogGroup"
+                    - "logs:CreateLogStream"
+                    - "logs:PutLogEvents"
+                  Resource:
+                    - "*"
           -
             PolicyName: "Dynamo-ServiceRole-Policy"
             PolicyDocument:
@@ -260,6 +293,7 @@ resources:
                     - "arn:aws:dynamodb:us-east-1:*:table/Users/*"
                     - "arn:aws:dynamodb:us-east-1:*:table/Tweets"
                     - "arn:aws:dynamodb:us-east-1:*:table/Tweets/*"
+                    
     XrayLambdaRolePolicy:
       Type: "AWS::IAM::Policy"
       Properties:
@@ -275,7 +309,7 @@ resources:
               Resource:
                 - "*"
         Roles:
-          - Ref: ServiceRole
+          - Ref: LambdaDynamoReader
 
 
 #  Outputs:

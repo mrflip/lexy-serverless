@@ -7,9 +7,6 @@ import { resolvers } from './resolvers';
 console.log("********** EnvVars **************************");
 console.log(process.env.REACT_APP_GRAPHQL_ENDPOINT);
 console.log(process.env.NODE_ENV);
-const fs = require('fs'); const path = require('path');
-console.log(__dirname);
-console.log(fs.readFileSync('./schema.graphql', 'utf8').substring(1,60));
 console.log("************************************");
 
 const server = new ApolloServer({

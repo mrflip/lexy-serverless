@@ -8,8 +8,28 @@ const docClient = new AWS.DynamoDB.DocumentClient();
 
 console.log('Importing data into DynamoDB. Please wait.');
 
-const allUsers = JSON.parse(fs.readFileSync('Users.json', 'utf8'));
-const allTweets = JSON.parse(fs.readFileSync('Tweets.json', 'utf8'));
+const allUsers    = JSON.parse(fs.readFileSync('Users.json', 'utf8'));
+const allTweets   = JSON.parse(fs.readFileSync('Tweets.json', 'utf8'));
+const allProducts = JSON.parse(fs.readFileSync('Products.json', 'utf8'));
+
+allProducts.forEach((product) => {
+  const Prodparams = {
+    TableName: 'Products',
+    Item: product,
+  };
+  docClient.put(Prodparams, (err, data) => {
+    if (err) {
+      console.error(
+        'Unable to add product',
+        product.name,
+        '. Error JSON:',
+        JSON.stringify(err, null, 2)
+      );
+    } else {
+      console.log('PutItem succeeded:', product.name);
+    }    
+  });
+});
 
 allUsers.forEach(function(user) {
   const Userparams = {

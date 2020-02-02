@@ -53,21 +53,21 @@ type Mutation {
     url:          	String,
     image_url:    	String,
     isKindOf:     	ID,
-    # logo_url:     	String,
-    # manufacturer: 	String,
-    # category:     	String, # slashed hierarchy
+    manufacturer: 	String,
+    category:     	String,
+    mpn:          	String,
+    nsn:          	String,
+    gtin:         	String,
+    upc:                String,
+    brand:              String,
     # rating_agg:   	Float,  #
     # rating_votes: 	Int,
     # sku:          	String,
-    # product_code: 	String, # isbn, etc
-    # mpn:          	String, # Manufacturer's Product Number
-    # nsn:          	String, # NATO Product Number
-    # gtin:         	String,
     # lot_id:       	String,
-    # length:     	Float,
-    # width:      	Float,
-    # height:     	Float,
-    # weight:     	Float,
+    # length:      	Float,
+    # width:       	Float,
+    # height:      	Float,
+    # weight:      	Float,
     # color:        	String
   ): 	Product!
 
@@ -78,16 +78,16 @@ type Mutation {
     url:          	String,
     image_url:    	String,
     isKindOf:     	ID,
-    # logo_url:     	String,
-    # manufacturer: 	String,
-    # category:     	String, # slashed hierarchy
+    manufacturer: 	String,
+    category:     	String,
+    mpn:          	String,
+    nsn:          	String,
+    gtin:         	String,
+    upc:                String,
+    brand:              String,
     # rating_agg:   	Float,  #
     # rating_votes: 	Int,
     # sku:          	String,
-    # product_code: 	String, # isbn, etc
-    # mpn:          	String, # Manufacturer's Product Number
-    # nsn:          	String, # NATO Product Number
-    # gtin:         	String,
     # lot_id:       	String,
     # length:      	Float,
     # width:       	Float,
@@ -106,6 +106,8 @@ type Query {
   meInfo(     consumer_key: 	String, consumer_secret: 	String): 	User!
   getUserInfo(handle: 	String!, consumer_key: 	String, consumer_secret: 	String): 	User!
 
+  getProducts(limit: Int, nextToken: ProductListTokenInp): ProductListPage
+  
   # search functionality is available in elasticsearch integration
   searchAllTweetsByKeyword(keyword: String!): 	TweetConnection
 }
@@ -183,35 +185,27 @@ type ProductCollection {
 
 # https://schema.org/Product
 type Product {
-  id:           	ID!
-  name:         	String!
-  description:  	String
-  url:          	String
-  image_url:    	String
-  isKindOf:     	ProductKind
-  # #
-  # #
-  # logo_url:     	String
-  # manufacturer: 	String
-  # # brand:      	String
-  # # model:      	String
-  # category:     	String # slashed hierarchy
-  # #
-  # #
-  # rating_agg:   	Float  #
-  # rating_votes: 	Int
-  # #
-  # sku:          	String
-  # product_code: 	String # isbn, etc
-  # mpn:          	String # Manufacturer's Product Number
-  # nsn:          	String # NATO Product Number
-  # gtin:         	String
-  # lot_id:       	String
-  # #
-  # length(unit: 	LengthUnit = METER): 	Float
-  # width(unit: 	LengthUnit = METER): 	Float
-  # height(unit: 	LengthUnit = METER): 	Float
-  # weight(unit: 	WeightUnit = KILOGRAM): Float
+  id:           	ID!,
+  name:         	String!,
+  description:  	String,
+  url:          	String,
+  image_url:    	String,
+  isKindOf:     	ID,
+  manufacturer: 	String,
+  brand:                String,
+  category:     	String,
+  mpn:          	String,
+  nsn:          	String,
+  gtin:         	String,
+  upc:                  String,
+  # rating_agg:   	Float,  #
+  # rating_votes: 	Int,
+  # sku:          	String,
+  # lot_id:       	String,
+  # length:      	Float,
+  # width:       	Float,
+  # height:      	Float,
+  # weight:      	Float,
   # color:        	String
   #
   # offers:     	[Offer]
@@ -220,6 +214,17 @@ type Product {
   # isConsumableFor: 	Product
   # isRelatedTo:     	Product
   #
+}
+
+type ProductListToken {
+    product_id : String!
+}
+input ProductListTokenInp {
+    product_id : String!
+}
+type ProductListPage {
+  items:     [Product!]!
+  nextToken: ProductListToken
 }
 
 ## "Toilet Paper" is a ProductKind; "Charmin Ultra Soft 24 Mega Rolls" is a Product
