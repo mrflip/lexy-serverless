@@ -30,6 +30,11 @@ const promisify = foo =>
     });
   });
 
+const makeProduct = (
+  { id, name, description, url, image_url, isKindOf, manufacturer, category, mpn, nsn, gtin, brand}
+) => { return (
+  { id, name, description, url, image_url, isKindOf, manufacturer, category, mpn, nsn, gtin, brand}
+); };
 
 const data = {
   getProducts(args) {
@@ -43,40 +48,18 @@ const data = {
       };
       console.log("HERE!!!!!");
       docClient.scan(params, callback);
-    }).catch(err => {
-      console.log("&&&&&&&&&&& caught");
-      console.log(err);
     }).then(result => {
       const prod_items = [];
       let prodList;
-
-      console.log("*************");
-      console.log(result);
-      console.log("*************");
-
+      //
       if (result.Items.length >= 1) {
-        prodList = {
-          items: [],
-        };
+        prodList = { items: [], };
       }
-
+      //
       result.Items.forEach((product) => {
-        prod_items.push({
-          id: product.id,
-          name: product.name,
-          description: product.description,
-          url: product.url,
-          image_url: product.image_url,
-          isKindOf: product.isKindOf,
-          manufacturer: product.manufacturer,
-          category: product.category,
-          mpn: product.mpn,
-          nsn: product.nsn,
-          gtin: product.gtin,
-          brand: product.brand
-        });
+        prod_items.push(makeProduct(product));
       });
-
+      //
       prodList.items = prod_items;
       if (result.LastEvaluatedKey) {
         prodList.nextToken = {
@@ -101,7 +84,8 @@ const data = {
       };
 
       if (args.nextToken) {
-        params.ExclusiveStartKey = {
+        params.ExclusiveStartKey
+        = {
           tweet_id: args.nextToken.tweet_id,
           created_at: args.nextToken.created_at,
           handle: handle,
@@ -174,7 +158,6 @@ const data = {
           following: result.Items[0].following,
         };
       }
-
       return listOfTweets;
     });
   },
