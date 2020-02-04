@@ -34,8 +34,8 @@ const makeProduct = (order_item) => {
   return(ProductDynamo(prod));
 };
 
-// const csv_file = './hackerspace-orders-201901-202001.csv'
-const csv_file = './seed-data/test-orders.csv';
+const csv_file = './seed-data/hackerspace-orders-201901-202001.csv'
+//const csv_file = './seed-data/test-orders.csv';
 
 const csv = fs.readFileSync(csv_file, 'utf8');
 var results = Papa.parse(csv, {
