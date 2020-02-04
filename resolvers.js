@@ -1,5 +1,8 @@
 // add to handler.js
 import dynamodb              from 'serverless-dynamodb-client';
+import AWSSdk  from 'aws-sdk';
+import AWSXRay from 'aws-xray-sdk';
+
 import { GraphQLScalarType } from 'graphql';
 import { Kind }              from 'graphql/language';
 
@@ -9,8 +12,7 @@ let docClient;
 // console.log(process.env);
 
 if (process.env.NODE_ENV === 'production') {
-  const AWSXRay = require('aws-xray-sdk'); // eslint-disable-line global-require
-  const AWS = AWSXRay.captureAWS(require('aws-sdk')); // eslint-disable-line global-require
+  const AWS = AWSXRay.captureAWS(AWSSdk);
   docClient = new AWS.DynamoDB.DocumentClient();
 } else {
   docClient = dynamodb.doc;

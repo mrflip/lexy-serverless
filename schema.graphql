@@ -54,21 +54,18 @@ type Mutation {
     image_url:    	String,
     isKindOf:     	ID,
     manufacturer: 	String,
-    category:     	String,
+    brand:              String,
+    brand_code:         String,
+    model_num:          String,
     mpn:          	String,
+    category:     	String,
+    unspsc:             String,
     nsn:          	String,
     gtin:         	String,
     upc:                String,
-    brand:              String,
-    # rating_agg:   	Float,  #
-    # rating_votes: 	Int,
-    # sku:          	String,
-    # lot_id:       	String,
-    # length:      	Float,
-    # width:       	Float,
-    # height:      	Float,
-    # weight:      	Float,
-    # color:        	String
+    asin:               String,
+    condition:          String,
+    price:              Float,
   ): 	Product!
 
   update_product(
@@ -79,21 +76,18 @@ type Mutation {
     image_url:    	String,
     isKindOf:     	ID,
     manufacturer: 	String,
-    category:     	String,
+    brand:              String,
+    brand_code:         String,
+    model_num:          String,
     mpn:          	String,
+    category:     	String,
+    unspsc:             String,
     nsn:          	String,
     gtin:         	String,
     upc:                String,
-    brand:              String,
-    # rating_agg:   	Float,  #
-    # rating_votes: 	Int,
-    # sku:          	String,
-    # lot_id:       	String,
-    # length:      	Float,
-    # width:       	Float,
-    # height:      	Float,
-    # weight:      	Float,
-    # color:        	String
+    asin:               String,
+    condition:          String,
+    price:              Float,
   ): 	Product!
 
   delete_product(
@@ -193,11 +187,18 @@ type Product {
   isKindOf:     	ID,
   manufacturer: 	String,
   brand:                String,
-  category:     	String,
+  brand_code:           String,
+  model_num:            String,
   mpn:          	String,
+  category:     	String,
+  unspsc:               String,
   nsn:          	String,
   gtin:         	String,
   upc:                  String,
+  asin:                 String,
+  condition:            String,
+  price:                Float,
+  #
   # rating_agg:   	Float,  #
   # rating_votes: 	Int,
   # sku:          	String,
@@ -209,7 +210,6 @@ type Product {
   # color:        	String
   #
   # offers:     	[Offer]
-  # itemCondition: 	
   # hasMerchantReturnPolicy:
   # isConsumableFor: 	Product
   # isRelatedTo:     	Product

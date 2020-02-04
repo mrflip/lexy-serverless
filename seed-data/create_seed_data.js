@@ -1,5 +1,5 @@
-const faker = require('faker');
-const jsonfile = require('jsonfile');
+import faker from 'faker';
+import jsonfile from 'jsonfile';
 
 const numUsers = 10;
 const tweetsPerUser = 5;

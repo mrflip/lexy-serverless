@@ -61,6 +61,7 @@ custom:
     includeModules: true
     excludeFiles:   "*.test.*"
     keepOutputDirectory: true
+    config: 'webpack.config.cjs'
   dynamodb:
     stages:
       - ${self:provider.stage}

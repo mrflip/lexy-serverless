@@ -27,7 +27,7 @@ allProducts.forEach((product) => {
       );
     } else {
       console.log('PutItem succeeded:', product.name);
-    }    
+    }
   });
 });
 

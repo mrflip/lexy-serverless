@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 require('./schema.graphql');
 const schema = fs.readFileSync('./schema.graphql', 'utf8');
 
