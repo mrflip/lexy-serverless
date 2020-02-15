@@ -30,6 +30,7 @@
  *   awsTag:    "aws Tag"
  * });
  *  */
+// import { AmzPapi           } from 'amazon-product-api';
 
 
 getProduct(id, args) {

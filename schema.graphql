@@ -1,4 +1,3 @@
-
 type Mutation {
   # Create a tweet for a user
   # consumer keys and tokens are not required for dynamo integration
@@ -217,7 +216,7 @@ type Product {
 }
 
 type ProductListToken {
-    product_id : String!
+    product_id : String
 }
 input ProductListTokenInp {
     product_id : String!

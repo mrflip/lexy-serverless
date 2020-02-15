@@ -43,14 +43,19 @@ var results = Papa.parse(csv, {
   header: true,
   complete: (results) => {
     let prod;
+    let allProducts = [];
+    
     results.data.forEach((order_item) => {
       prod = makeProduct(order_item);
+      if (! prod.id) return; 
       ProductDynamo.putProduct(prod);
-      console.log(prod);
+      allProducts.push(prod);
     });
+
+    // console.log('all products: ', allProducts);
+    
     },
   }
 );
 
-console.log("########");
-ProductDynamo.dumpProducts();
+// ProductDynamo.dumpProducts();

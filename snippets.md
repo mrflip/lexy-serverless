@@ -28,16 +28,17 @@ Savannah1
 ```
 
 ```
-{
-  getProducts(limit: 3) {
-    id
-    name
-    description
-    image_url
-    url
-    category
+  {
+    getProducts(limit: 9) {
+      items {
+        id
+        name
+        description
+        image_url
+        category
+      }
+    }
   }
-}
 ```
 
 ## Dynamo
@@ -104,3 +105,82 @@ B00005N5PF     ASIN Monopoly by Hasbro
 00123456789012 GTIN14 Tache 28 x 47 Inches Greek Mediterranean Vacation Wall Hanging
 01234567890128 EAN NoNoise Hobby & Garden Earplugs
 00000012345670 Sunie Seiki Digital 15" X 15" Clamshell Heat Press
+
+
+
+## Amazon Order CSV Import
+
+    {
+      '﻿Order Date': '11/21/2019',
+      'Order ID': '112-1034912-1249839',
+      'Account Group': 'ATX Hackerspace LLC',
+      'PO Number': '',
+      'Order Quantity': '2',
+      Currency: 'USD',
+      'Order Subtotal': '48.59',
+      'Order Shipping & Handling': '8.31',
+      'Order Promotion': '-8.31',
+      'Order Tax': '4.01',
+      'Order Net Total': '52.60',
+      'Order Status': 'Closed',
+      Approver: '',
+      'Account User': 'Dannym',
+      'Account User Email': 'facilities@atxhs.org',
+      'Invoice Status': 'N/A',
+      'Total Amount': 'N/A',
+      'Invoice Due Amount': 'N/A',
+      'Invoice Issue Date': 'N/A',
+      'Invoice Due Date': 'N/A',
+      'Payment Reference ID': '1fNeDYWVkPXkXgP9I0x7',
+      'Payment Date': '11/26/2019',
+      'Payment Amount': '52.60',
+      'Payment Instrument Type': 'Mastercard',
+      'Payment Identifier': '="9468"',
+      'Shipment Date': '11/26/2019',
+      'Shipment Status': 'Shipped',
+      'Carrier Tracking #': 'TBA291225715000',
+      'Shipment Quantity': '1',
+      'Shipping Address': 'ATX Hackerspace, 9701 DESSAU RD STE 304, AUSTIN, 78754-3964, TX, US',
+      'Shipment Subtotal': '39.14',
+      'Shipment Shipping & Handling': '6.94',
+      'Shipment Promotion': '-6.94',
+      'Shipment Tax': '3.23',
+      'Shipment Net Total': '42.37',
+      'Carrier Name': 'Amazon Logistics',
+      'Product Category': 'Home Improvement',
+      ASIN: 'B00FMPKAD0',
+      Title: 'TEKTON 24330 3/8-Inch Drive Click Torque Wrench (10-80 ft.-lb./13.6-108.5 Nm)',
+      UNSPSC: '="27111715"',
+      'Brand Code': 'TEKAF',
+      Brand: 'TEKTON',
+      Manufacturer: 'TEKTON',
+      'National Stock Number': '',
+      'Item model number': '="24330"',
+      'Part number': '="24330"',
+      'Product Condition': 'New',
+      'Company Compliance': '',
+      'Listed PPU': '40.00',
+      'Purchase PPU': '39.14',
+      'Item Quantity': '1',
+      'Item Subtotal': '39.14',
+      'Item Shipping & Handling': '6.94',
+      'Item Promotion': '-6.94',
+      'Item Tax': '3.23',
+      'Item Net Total': '42.37',
+      'PO Line Item Id': '',
+      'Tax Exemption Applied': 'No',
+      'Tax Exemption Type': '',
+      'Tax Exemption Opt Out': 'No',
+      'Discount Program': '',
+      'Pricing Discount applied ($ off)': '',
+      'Pricing Discount applied (% off)': '',
+      'GL Code': '',
+      Department: '',
+      'Cost Center': '',
+      'Project Code': '',
+      Location: '',
+      'Custom Field 1': '',
+      'Seller Name': 'Amazon.com',
+      'Seller Credentials': '',
+      'Seller Address': ''
+    },

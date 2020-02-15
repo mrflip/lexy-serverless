@@ -160,6 +160,9 @@ functions:
 # you can add CloudFormation resource templates here
 resources:
   Resources:
+    #
+    # If you add DynamoDB Tables you must add here and in the role below
+    #
     ProductTable:
       Type: 'AWS::DynamoDB::Table'
       Properties:
@@ -294,6 +297,8 @@ resources:
                     - "arn:aws:dynamodb:us-east-1:*:table/Users/*"
                     - "arn:aws:dynamodb:us-east-1:*:table/Tweets"
                     - "arn:aws:dynamodb:us-east-1:*:table/Tweets/*"
+                    - "arn:aws:dynamodb:us-east-1:*:table/Products"
+                    - "arn:aws:dynamodb:us-east-1:*:table/Products/*"
                     
     XrayLambdaRolePolicy:
       Type: "AWS::IAM::Policy"
