@@ -11,7 +11,9 @@ module.exports = {
   externals: [nodeExternals()],
   module: {
     rules: [
-      { test: /\.graphql/, use: [ {loader: 'file-loader', options: { name: '[name].[ext]', } } ], }, // outputPath: 'images/'
+      { test: /\.graphql/, use: [
+         {loader: 'file-loader', options: { name: '[name].[ext]', } } ],
+         }, 
       {
         test: /\.js$/,
         use: [
@@ -28,7 +30,7 @@ module.exports = {
   },
   output: {
     libraryTarget: 'commonjs',
-    path: path.join(__dirname, '.webpack'),
-    filename: '[name].js',
+    path:          path.join(__dirname, '.webpack'),
+    filename:      '[name].js',
   },
 };

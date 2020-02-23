@@ -34,8 +34,10 @@ const promisify = foo =>
 
 const makeProduct = (
   { id, name, description, url, image_url, isKindOf, manufacturer, category, mpn, nsn, gtin, brand}
-) => { return (
-  { id, name, description, url, image_url, isKindOf, manufacturer, category, mpn, nsn, gtin, brand}
+) => {
+  brand = "v1";
+  return (
+  { id, name, description, url, image_url, isKindOf, manufacturer, category, mpn, nsn, gtin, brand }
 ); };
 
 const data = {
