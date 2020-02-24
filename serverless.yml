@@ -20,7 +20,7 @@ plugins:
   - serverless-offline
   - serverless-webpack
   - serverless-dotenv-plugin
-  
+
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
 # frameworkVersion: "=X.X.X"
@@ -44,6 +44,9 @@ custom:
   notesTable:      notes-${self:custom.stage}
   usersTable:      users-${self:custom.stage}
   tweetsTable:     tweets-${self:custom.stage}
+  attachBucket:    attachments-${self:custom.stage}
+  fooBucket:       foobuck-${self:custom.stage}
+  #
   serverless-offline:
     port: 4000
   webpack:
@@ -69,6 +72,19 @@ custom:
           - table: ${self:custom.productsTable}
             sources: [seed-data/Products.json]
 
+  # https://www.npmjs.com/package/serverless-domain-manager
+  #
+  # Need to move to Route53 management of one of our domains, parking
+  # this for now
+  #
+  # customDomain:
+  #   domainName: serverless.foo.com
+  #   stage: ci
+  #   basePath: api
+  #   certificateName: '*.foo.com'
+  #   createRoute53Record: true
+  #   endpointType: 'regional'
+  #   securityPolicy: tls_1_2
 
 # you can define service wide environment variables here
 #  environment:
@@ -122,7 +138,7 @@ resources:
   - ${file(resources/s3-bucket.yml)}
   # IAM
   - ${file(resources/iam-roles.yml)}
-  
+
 
 #  Outputs:
 #     NewOutput:

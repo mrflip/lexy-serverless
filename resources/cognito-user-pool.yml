@@ -20,6 +20,28 @@ Resources:
           # - verified_phone_number
       AutoVerifiedAttributes:
         - email
+      # EmailConfiguration:
+      #   ConfigurationSet:       ""
+      #   EmailSendingAccount:    ""
+      #   From:                   ""
+      #   ReplyToEmailAddress:    ""
+      #   SourceArn:              ""
+      # EmailVerificationMessage: >-
+      #   Please follow this link to verify your email address:
+      #   {##Verify Email##} This will allow you to reset your password
+      #   and helps us keep your information secure.
+      # EmailVerificationSubject: Welcome to Tooksome — Please Verify Your Email
+      VerificationMessageTemplate:
+        DefaultEmailOption:     CONFIRM_WITH_LINK
+        EmailSubjectByLink:     Welcome to Tooksome — Please Verify Your Email
+        EmailMessageByLink:     >-
+          Please follow this link to verify your email address: {##Verify Email##}
+          This allows password resets and improves security
+        # EmailMessage:           ""
+        # EmailSubject:           ""
+        # SmsMessage:             ""
+
+      #
       # MfaConfiguration: OPTIONAL
       # EnabledMfas:
       #   - SMS_MFA
@@ -38,7 +60,7 @@ Resources:
       Domain:                   tksm-users-${self:custom.stage}
       UserPoolId:
         Ref:                    CognitoUserPool
-          
+
   CognitoUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
