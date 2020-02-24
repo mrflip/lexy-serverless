@@ -29,7 +29,7 @@ Savannah1
 
 ```
   {
-    getProducts(limit: 9) {
+    getProducts(limit: 19) {
       items {
         id
         name
@@ -37,8 +37,13 @@ Savannah1
         image_url
         category
       }
+      nextToken { product_id }
     }
   }
+```
+
+```
+value: 'arn:aws:logs:us-east-1:463510405910:log-group:/aws/api-gateway/samwise-dev'
 ```
 
 ## Dynamo

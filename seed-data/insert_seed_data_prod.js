@@ -14,7 +14,7 @@ const allProducts = JSON.parse(fs.readFileSync('Products.json', 'utf8'));
 
 allProducts.forEach((product) => {
   const Prodparams = {
-    TableName: 'Products',
+    TableName: 'products-dev',
     Item: product,
   };
   docClient.put(Prodparams, (err, data) => {
@@ -33,7 +33,7 @@ allProducts.forEach((product) => {
 
 allUsers.forEach(function(user) {
   const Userparams = {
-    TableName: 'Users',
+    TableName: 'users-dev',
     Item: {
       name: user.name,
       handle: user.handle,
@@ -62,7 +62,7 @@ allUsers.forEach(function(user) {
 
 allTweets.forEach(function(tweet) {
   const Tweetparams = {
-    TableName: 'Tweets',
+    TableName: 'tweets-dev',
     Item: {
       handle: tweet.handle,
       tweet_id: tweet.tweet_id,

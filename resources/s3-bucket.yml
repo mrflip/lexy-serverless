@@ -18,6 +18,12 @@ Resources:
               - HEAD
             MaxAge: 3000
 
+
+  ServerlessDeploymentBucket:
+    Properties:
+      AccelerateConfiguration:
+        AccelerationStatus: Enabled
+          
 # Print out the name of the bucket that is created
 Outputs:
   AttachmentsBucketName:

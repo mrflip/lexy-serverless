@@ -46,7 +46,7 @@ const data = {
       console.log("ARGS");
       console.log(args)
       const params = {
-        TableName: 'Products',
+        TableName: 'products-dev',
         Limit: args.limit,
         Select: 'ALL_ATTRIBUTES',
       };
@@ -77,7 +77,7 @@ const data = {
   getPaginatedTweets(handle, args) {
     return promisify(callback => {
       const params = {
-        TableName: 'Tweets',
+        TableName: 'tweets-dev',
         KeyConditionExpression: 'handle = :v1',
         ExpressionAttributeValues: {
           ':v1': handle,
@@ -139,7 +139,7 @@ const data = {
     return promisify(callback =>
       docClient.query(
         {
-          TableName: 'Users',
+          TableName: 'users-dev',
           KeyConditionExpression: 'handle = :v1',
           ExpressionAttributeValues: {
             ':v1': args.handle,

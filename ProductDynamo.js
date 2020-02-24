@@ -25,7 +25,7 @@ const ProductDynamo = (
 
 ProductDynamo.putProduct = (product) => {
   const dbParams = {
-    TableName: 'Products',
+    TableName: 'products-dev',
     Item: product,
   };
   docClient.put(dbParams, (err, data) => {
@@ -39,7 +39,7 @@ ProductDynamo.putProduct = (product) => {
 
 ProductDynamo.dumpProducts = () => {
   let params = {
-    TableName: 'Products',
+    TableName: 'products-dev',
     Limit:     23,
     Select:    'ALL_ATTRIBUTES',
   };

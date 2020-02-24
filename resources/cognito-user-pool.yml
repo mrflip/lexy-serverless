@@ -1,20 +1,49 @@
 Resources:
+  # https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_CreateUserPool.html
   CognitoUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
       # Generate a name based on the stage
-      UserPoolName: ${self:custom.stage}-user-pool
+      UserPoolName:             tksm-users-${self:custom.stage}
+      UserPoolTags:
+        Env:                    ${self:custom.stage}
+        App:                    tooksome
       # Set email as an alias
       UsernameAttributes:
         - email
+      UsernameConfiguration:
+        CaseSensitive: False
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - Name:     verified_email
+            Priority: 1
+          # - verified_phone_number
       AutoVerifiedAttributes:
         - email
+      # MfaConfiguration: OPTIONAL
+      # EnabledMfas:
+      #   - SMS_MFA
+      #   - SOFTWARE_TOKEN_MFA
+      Policies:
+        PasswordPolicy:
+          MinimumLength:        8
+          RequireLowercase:     true
+          RequireUppercase:     true
+          RequireNumbers:       true
+          RequireSymbols:       false
 
+  CognitoUserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain:                   tksm-users-${self:custom.stage}
+      UserPoolId:
+        Ref:                    CognitoUserPool
+          
   CognitoUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
       # Generate an app client name based on the stage
-      ClientName: ${self:custom.stage}-user-pool-client
+      ClientName:               tksm-users-client-${self:custom.stage}
       UserPoolId:
         Ref: CognitoUserPool
       ExplicitAuthFlows:
@@ -26,6 +55,10 @@ Outputs:
   UserPoolId:
     Value:
       Ref: CognitoUserPool
+
+  UserPoolDomainId:
+    Value:
+      Ref: CognitoUserPoolDomain
 
   UserPoolClientId:
     Value:

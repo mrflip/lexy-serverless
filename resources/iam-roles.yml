@@ -1,0 +1,68 @@
+Resources:
+  LambdaDynamoReader:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: "LambdaDynamoReader"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        -
+          PolicyName: "CloudWatch-Logger-Policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource:
+                  - "*"
+        -
+          PolicyName: "Dynamo-ServiceRole-Policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action:
+                  - "dynamodb:Query"
+                  - "dynamodb:BatchWriteItem"
+                  - "dynamodb:GetItem"
+                  - "dynamodb:DeleteItem"
+                  - "dynamodb:PutItem"
+                  - "dynamodb:Scan"
+                  - "dynamodb:UpdateItem"
+                Resource:
+                  - "arn:aws:dynamodb:us-east-1:*:table/users-dev"
+                  - "arn:aws:dynamodb:us-east-1:*:table/users-dev/*"
+                  - "arn:aws:dynamodb:us-east-1:*:table/tweets-dev"
+                  - "arn:aws:dynamodb:us-east-1:*:table/tweets-dev/*"
+                  - "arn:aws:dynamodb:us-east-1:*:table/products-dev"
+                  - "arn:aws:dynamodb:us-east-1:*:table/products-dev/*"
+                  
+  XrayLambdaRolePolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "xray-policy"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Action:
+              - "xray:PutTraceSegments"
+              - "xray:PutTelemetryRecords"
+            Resource:
+              - "*"
+      Roles:
+        - Ref: LambdaDynamoReader
