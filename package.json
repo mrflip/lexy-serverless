@@ -15,10 +15,10 @@
     "dyloc-start": "serverless dynamo start",
     "start": "yarn seed-gen && serverless dynamodb install && yarn launch",
     "launch": "env-cmd -f ./.secrets.env.local serverless offline start",
-    "deploy-dev": "env-cmd -f ./.secrets.env.dev   serverless --stage=dev  deploy && yarn seed-aws",
-    "deploy-prod": "env-cmd -f ./.secrets.env.prod  serverless --stage=prod deploy && yarn seed-aws",
-    "deploy-fn": "env-cmd -f ./.secrets.env.dev   serverless --stage=dev  deploy function -f graphql",
-    "tail-dev": "env-cmd -f ./.secrets.env.dev   serverless --stage=dev  logs            -f graphql -t",
+    "deploy-dev": "env-cmd -f ./.secrets.env.dev   serverless --aws-s3-accelerate --stage=dev  deploy && yarn seed-aws",
+    "deploy-prod": "env-cmd -f ./.secrets.env.prod  serverless --aws-s3-accelerate --stage=prod deploy && yarn seed-aws",
+    "deploy-fn": "env-cmd -f ./.secrets.env.dev   serverless --aws-s3-accelerate --stage=dev  deploy function -f graphql",
+    "tail-dev": "env-cmd -f ./.secrets.env.dev   serverless --aws-s3-accelerate --stage=dev  logs            -f graphql -t",
     "seed-load": "env-cmd -f ./.secrets.env.dev   serverless --stage=dev  dynamodb seed",
     "seed-migrate": "env-cmd -f ./.secrets.env.dev  serverless --stage=dev  dynamodb migrate"
   },
@@ -29,6 +29,7 @@
     "babel-polyfill": "^6.26.0",
     "esm": "^3.2.25",
     "graphql": "^14.6.0",
+    "serverless-domain-manager": "^3.3.1",
     "serverless-dynamodb-client": "^0.0.2"
   },
   "devDependencies": {
