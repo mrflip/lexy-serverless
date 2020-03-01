@@ -19,26 +19,6 @@ Resources:
               - HEAD
             MaxAge: 3000
 
-  FooBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: ${self:custom.fooBucket}
-      # Set the CORS policy
-      CorsConfiguration:
-        CorsRules:
-          -
-            AllowedOrigins:
-              - '*'
-            AllowedHeaders:
-              - '*'
-            AllowedMethods:
-              - GET
-              - PUT
-              - POST
-              - DELETE
-              - HEAD
-            MaxAge: 3000
-
 
   ServerlessDeploymentBucket:
     Properties:
@@ -50,6 +30,3 @@ Outputs:
   AttachmentsBucketName:
     Value:
       Ref: AttachmentsBucket
-  FooBucketName:
-    Value:
-      Ref: FooBucket

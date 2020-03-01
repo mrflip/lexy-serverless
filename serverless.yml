@@ -11,8 +11,8 @@
 #
 # Happy Coding!
 
-service:  samwise
-app:      samwise
+service:  lexy
+app:      lexy
 org:      mrflip
 
 plugins:
@@ -30,22 +30,15 @@ provider:
   runtime: nodejs12.x
   stage: dev
   region: us-east-1
-
   environment:
-    productsTable:    ${self:custom.productsTable}
-    notesTable:       ${self:custom.notesTable}
-    usersTable:       ${self:custom.notesTable}
-    tweetsTable:      ${self:custom.notesTable}
+    beesTable:     ${self:custom.beesTable}
+    guessesTable:  ${self:custom.guessesTable}
     # stripeSecretKey: ${env:STRIPE_SECRET_KEY}
 
 custom:
   stage:           ${opt:stage, self:provider.stage}
-  productsTable:   products-${self:custom.stage}
-  notesTable:      notes-${self:custom.stage}
-  usersTable:      users-${self:custom.stage}
-  tweetsTable:     tweets-${self:custom.stage}
-  attachBucket:    attachments-${self:custom.stage}
-  fooBucket:       foobuck-${self:custom.stage}
+  beesTable:       bees-${self:custom.stage}
+  guessesTable:      guesses-${self:custom.stage}
   #
   serverless-offline:
     port: 4000
@@ -65,12 +58,8 @@ custom:
     seed:
       test:
         sources:
-          - table: ${self:custom.usersTable}
-            sources: [seed-data/Users.json]
-          - table: ${self:custom.tweetsTable}
-            sources: [seed-data/Tweets.json]
-          - table: ${self:custom.productsTable}
-            sources: [seed-data/Products.json]
+          # - table: ${self:custom.productsTable}
+          #   sources: [seed-data/Products.json]
 
   # https://www.npmjs.com/package/serverless-domain-manager
   #
@@ -86,19 +75,6 @@ custom:
   #   endpointType: 'regional'
   #   securityPolicy: tls_1_2
 
-# you can define service wide environment variables here
-#  environment:
-#    variable1: value1
-
-# you can add packaging information here
-#package:
-#  include:
-#    - include-me.js
-#    - include-me-dir/**
-#  exclude:
-#    - exclude-me.js
-#    - exclude-me-dir/**
-
 functions:
   graphql:
     handler:    handler.graphqlHandler
@@ -112,20 +88,9 @@ functions:
         path:   graphql
         method: get
         cors:   true
-  hello:
-    handler:    handler.hello
-    role:       LambdaDynamoReader
-    events:
-    - http:
-        path:   hello
-        method: get
-        cors:   true
+    environment:
+      foo:      bar
 
-#    Define function environment variables here
-#    environment:
-#      variable2: value2
-
-# you can add CloudFormation resource templates here
 resources:
   # Cognito
   - ${file(resources/cognito-user-pool.yml)}
@@ -133,7 +98,7 @@ resources:
   # API Gateway Errors
   # - ${file(resources/api-gateway-errors.yml)}
   # DynamoDB
-  - ${file(resources/dynamodb-table.yml)}
+  - ${file(resources/dynamodb-lexy.yml)}
   # S3
   - ${file(resources/s3-bucket.yml)}
   # IAM

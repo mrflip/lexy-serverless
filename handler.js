@@ -40,24 +40,3 @@ exports.graphqlHandler = server.createHandler({
     origin: '*',
   },
 });
-
-
-module.exports.hello = async event => {
-  console.log("Hello to the logs!");
-  console.log(JSON.stringify(event));
-  return {
-    statusCode: 200,
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(
-      {
-        message: 'Hello from Tooksome!',
-        input: event,
-      },
-      null,
-      2
-    ),
-  };
-
-  // Use this code if you don't use the http event with the LAMBDA-PROXY integration
-  // return { message: 'Go Serverless v1.0! Your function executed successfully!', event };
-};

@@ -1,8 +1,8 @@
 Resources:
-  LambdaDynamoReader:
+  LexyDynamoReader:
     Type: "AWS::IAM::Role"
     Properties:
-      RoleName: "LambdaDynamoReader"
+      RoleName: "LexyDynamoReader"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -43,17 +43,15 @@ Resources:
                   - "dynamodb:Scan"
                   - "dynamodb:UpdateItem"
                 Resource:
-                  - "arn:aws:dynamodb:us-east-1:*:table/users-dev"
-                  - "arn:aws:dynamodb:us-east-1:*:table/users-dev/*"
-                  - "arn:aws:dynamodb:us-east-1:*:table/tweets-dev"
-                  - "arn:aws:dynamodb:us-east-1:*:table/tweets-dev/*"
-                  - "arn:aws:dynamodb:us-east-1:*:table/products-dev"
-                  - "arn:aws:dynamodb:us-east-1:*:table/products-dev/*"
+                  - "arn:aws:dynamodb:us-east-1:*:table/bees-dev"
+                  - "arn:aws:dynamodb:us-east-1:*:table/bees-dev/*"
+                  - "arn:aws:dynamodb:us-east-1:*:table/guesses-dev"
+                  - "arn:aws:dynamodb:us-east-1:*:table/guesses-dev/*"
                   
-  XrayLambdaRolePolicy:
+  LexyXrayRolePolicy:
     Type: "AWS::IAM::Policy"
     Properties:
-      PolicyName: "xray-policy"
+      PolicyName: "lexy-xray-policy"
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -65,4 +63,4 @@ Resources:
             Resource:
               - "*"
       Roles:
-        - Ref: LambdaDynamoReader
+        - Ref: LexyDynamoReader

@@ -4,10 +4,10 @@ Resources:
     Type: AWS::Cognito::UserPool
     Properties:
       # Generate a name based on the stage
-      UserPoolName:             tksm-users-${self:custom.stage}
+      UserPoolName:             lexy-users-${self:custom.stage}
       UserPoolTags:
         Env:                    ${self:custom.stage}
-        App:                    tooksome
+        App:                    lexy
       # Set email as an alias
       UsernameAttributes:
         - email
@@ -30,10 +30,10 @@ Resources:
       #   Please follow this link to verify your email address:
       #   {##Verify Email##} This will allow you to reset your password
       #   and helps us keep your information secure.
-      # EmailVerificationSubject: Welcome to Tooksome — Please Verify Your Email
+      # EmailVerificationSubject: Welcome to Lexy — Please Verify Your Email
       VerificationMessageTemplate:
         DefaultEmailOption:     CONFIRM_WITH_LINK
-        EmailSubjectByLink:     Welcome to Tooksome — Please Verify Your Email
+        EmailSubjectByLink:     Welcome to Lexy — Please Verify Your Email
         EmailMessageByLink:     >-
           Please follow this link to verify your email address: {##Verify Email##}
           This allows password resets and improves security
@@ -57,7 +57,7 @@ Resources:
   CognitoUserPoolDomain:
     Type: AWS::Cognito::UserPoolDomain
     Properties:
-      Domain:                   tksm-users-${self:custom.stage}
+      Domain:                   lexy-users-${self:custom.stage}
       UserPoolId:
         Ref:                    CognitoUserPool
 
@@ -65,7 +65,7 @@ Resources:
     Type: AWS::Cognito::UserPoolClient
     Properties:
       # Generate an app client name based on the stage
-      ClientName:               tksm-users-client-${self:custom.stage}
+      ClientName:               lexy-users-client-${self:custom.stage}
       UserPoolId:
         Ref: CognitoUserPool
       ExplicitAuthFlows:

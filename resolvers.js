@@ -1,16 +1,16 @@
 // add to handler.js
 import dynamodb              from 'serverless-dynamodb-client';
-import AWSSdk  from 'aws-sdk';
-import AWSXRay from 'aws-xray-sdk';
+import AWSSdk                from 'aws-sdk';
+import AWSXRay               from 'aws-xray-sdk';
 
 import { GraphQLScalarType } from 'graphql';
 import { Kind }              from 'graphql/language';
 
-let docClient;
+import Secrets               from './Secrets'
 
+let docClient;
 // console.log(process.env.NODE_ENV);
 // console.log(process.env);
-
 if (process.env.NODE_ENV === 'production') {
   const AWS = AWSXRay.captureAWS(AWSSdk);
   docClient = new AWS.DynamoDB.DocumentClient();
@@ -31,6 +31,8 @@ const promisify = foo =>
       }
     });
   });
+//const makeGuess = ({ bee_ltrs, word, user_id }) => (
+//  )
 
 const makeProduct = (
   { id, name, description, url, image_url, isKindOf, manufacturer, category, mpn, nsn, gtin, brand}
@@ -41,7 +43,24 @@ const makeProduct = (
 ); };
 
 const data = {
-  getProducts(args) {
+  bee_update({user_id, bee}) {
+  }  
+    
+  
+  product_amz_search({limit, term, nextToken, ...rest}) {
+    amzClient.itemSearch({
+      director:      'Quentin Tarantino',
+      searchIndex:   'DVD',
+      responseGroup: 'ItemAttributes,Images',
+    }).then(result => {
+      console.log("product_amz_search result: ", result);
+      return { items: [], }
+    }).catch(error => {
+      console.log("product_amz_search error: ", error, error.Error[0])
+    })
+  },
+
+  product_list_page(args) {
     return promisify(callback => {
       console.log("ARGS");
       console.log(args)
@@ -57,14 +76,14 @@ const data = {
       let prodList;
       //
       if (result.Items.length >= 1) {
-        prodList = { items: [], };
+        prodList = { products: [], };
       }
       //
       result.Items.forEach((product) => {
         prod_items.push(makeProduct(product));
       });
       //
-      prodList.items = prod_items;
+      prodList.products = prod_items;
       if (result.LastEvaluatedKey) {
         prodList.nextToken = {
           id: result.LastEvaluatedKey.id
@@ -74,106 +93,15 @@ const data = {
     });
   },
 
-  getPaginatedTweets(handle, args) {
-    return promisify(callback => {
-      const params = {
-        TableName: 'tweets-dev',
-        KeyConditionExpression: 'handle = :v1',
-        ExpressionAttributeValues: {
-          ':v1': handle,
-        },
-        IndexName: 'tweet-index',
-        Limit: args.limit,
-        ScanIndexForward: false,
-      };
 
-      if (args.nextToken) {
-        params.ExclusiveStartKey
-        = {
-          tweet_id: args.nextToken.tweet_id,
-          created_at: args.nextToken.created_at,
-          handle: handle,
-        };
-      }
+}
 
-      docClient.query(params, callback);
-    }).then(result => {
-      const tweets = [];
-      let listOfTweets;
 
-      console.log(result);
-
-      if (result.Items.length >= 1) {
-        listOfTweets = {
-          items: [],
-        };
-      }
-
-      for (let i = 0; i < result.Items.length; i += 1) {
-        tweets.push({
-          tweet_id: result.Items[i].tweet_id,
-          created_at: result.Items[i].created_at,
-          handle: result.Items[i].handle,
-          tweet: result.Items[i].tweet,
-          retweet_count: result.Items[i].retweet_count,
-          retweeted: result.Items[i].retweeted,
-          favorited: result.Items[i].favorited,
-        });
-      }
-
-      listOfTweets.items = tweets;
-
-      if (result.LastEvaluatedKey) {
-        listOfTweets.nextToken = {
-          tweet_id: result.LastEvaluatedKey.tweet_id,
-          created_at: result.LastEvaluatedKey.created_at,
-          handle: result.LastEvaluatedKey.handle,
-        };
-      }
-
-      return listOfTweets;
-    });
-  },
-
-  getUserInfo(args) {
-    return promisify(callback =>
-      docClient.query(
-        {
-          TableName: 'users-dev',
-          KeyConditionExpression: 'handle = :v1',
-          ExpressionAttributeValues: {
-            ':v1': args.handle,
-          },
-        },
-        callback
-      )
-    ).then(result => {
-      let listOfTweets;
-
-      if (result.Items.length >= 1) {
-        listOfTweets = {
-          name: result.Items[0].name,
-          handle: result.Items[0].handle,
-          location: result.Items[0].location,
-          description: result.Items[0].description,
-          followers_count: result.Items[0].followers_count,
-          friends_count: result.Items[0].friends_count,
-          favourites_count: result.Items[0].favourites_count,
-          following: result.Items[0].following,
-        };
-      }
-      return listOfTweets;
-    });
-  },
-};
 // eslint-disable-next-line import/prefer-default-export
 export const resolvers = {
   Query: {
-    getUserInfo: (root, args) => data.getUserInfo(args),
-    getProducts: (root, args) => data.getProducts(args),
-  },
-  User: {
-    tweets: (obj, args) => data.getPaginatedTweets(obj.handle, args),
+    product_list_page: (root, args) => data.product_list_page(args),
+    product_amz_search: (root, args) => data.product_amz_search(args),
   },
   Date: new GraphQLScalarType({
     name: 'Date',

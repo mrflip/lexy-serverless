@@ -1,10 +1,10 @@
 {
-  "name": "tooksome-samwise",
+  "name": "lexy-sls",
   "version": "0.0.0",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git@github.com:mrflip/samwise.git"
+    "url": "git@github.com:mrflip/lexy.git"
   },
   "scripts": {
     "test": "jest",
@@ -23,7 +23,6 @@
     "seed-migrate": "env-cmd -f ./.secrets.env.dev  serverless --stage=dev  dynamodb migrate"
   },
   "dependencies": {
-    "amazon-product-api": "^0.4.4",
     "apollo-server-lambda": "^2.9.16",
     "aws-xray-sdk": "^2.5.0",
     "babel-polyfill": "^6.26.0",
