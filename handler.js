@@ -19,7 +19,6 @@ const server = new ApolloServer({
   },
   //
   formatResponse: response => {
-    console.log('resp', response);
     return response;
   },
   //

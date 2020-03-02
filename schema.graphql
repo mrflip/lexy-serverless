@@ -20,20 +20,20 @@ type Mutation {
   ): BeeUpdateResp!
   
   bee_del(
-    letters:            String!,
+    letters:          String!,
   ): String!
   
   guess_add(
-    letters:           String!,
-    guess:              String!,
-    score:              Int!,
-    isPangram:          Boolean!,
-    score:              Int!,
-    scrabble:           Boolean!,
+    letters:          String!,
+    guess:            String!,
+    score:            Int!,
+    isPangram:        Boolean!,
+    score:            Int!,
+    scrabble:         Boolean!,
   ): String!
   
   guess_del(
-    guess:              String!,
+    guess:            String!,
   ): BeeGuess!
   
 }
@@ -48,30 +48,43 @@ type BeeGuess {
 }
 
 type Bee {
-  letters:            String,
+  letters:            String!,
   datestr:            String,
-  guesses:            [String],
-  nogos:              [String],
+  guesses:            [String!]!,
+  nogos:              [String!]!,
 }
 
 type BeeUpdateResp {
-  success: Boolean!
-  message: String
-  bee:     Bee
+  success:              Boolean!
+  message:              String
+  bee:                  Bee
 }
 
 type Query {
   bee_get(
-    letters: String!,
+    letters:            String!,
   ): Bee
+
+  bee_list(
+    limit:              Int!,
+    cursor:             BeeListCursorInp
+  ): BeeListPage!
 }
 
-# https://schema.org/Product
-input ProductInp {
-  id:           	ID!,
-  name:         	String!,
-
+type BeeListPage {
+  bees:                [Bee!]!
+  cursor:              BeeListCursor
 }
+
+input BeeListCursorInp {
+  letters:              String!
+}
+
+type BeeListCursor {
+  letters:              String!
+}
+
+
 
 # directive @aws_subscribe(mutations: [String]) on FIELD_DEFINITION
 # 

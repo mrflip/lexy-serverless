@@ -11,14 +11,17 @@ import Secrets               from './Secrets'
 import Bee                   from '../lexy/lib/Bee'
 
 let dynamodb;
-// console.log(process.env.NODE_ENV);
-// console.log(process.env);
+//console.log(process.env);
+
 if (process.env.NODE_ENV === 'production') {
   const AWS = AWSXRay.captureAWS(AWSSdk);
   dynamodb = new AWS.DynamoDB.DocumentClient();
 } else {
   dynamodb = dynamodbClient.doc;
 }
+
+const BEES_TABLE    = (process.env.beesTable || 'BEES_TABLE_NOT_IN_ENV')
+const GUESSES_TABLE = (process.env.beesTable || 'BEES_TABLE_NOT_IN_ENV')
 
 // add to handler.js
 const promisify = foo =>
@@ -35,26 +38,24 @@ const promisify = foo =>
   });
 
 const data = {
-  bee_update({ letters, datestr, guesses, nogos, ...rest }) {
-    const bee =  { user_id: 'flip', letters, datestr, guesses, nogos }
+  bee_update({ letters, datestr, guesses, nogos }) {
+    const bee    = {
+      user_id: 'flip', letters, datestr, guesses, nogos
+    }
     const params = {
-      TableName: 'bees-dev',
-      Key:  { user_id: 'flip', letters, },
+      TableName: BEES_TABLE,
+      Key:  { user_id: 'flip', letters },
       Item: bee,
     }
-    console.log(params, rest)
     return promisify(
       callback => (dynamodb.put(params, callback))
     ).then(result => {
       console.log("bee_update succ: ", result)
-      // const bee = { ...result.Attributes, letters, datestr, guesses, nogos }
-      const ret = ({
+      return ({
         success: true,
         message: `Bee '${letters}' saved`,
         bee
       })
-      console.log(ret)
-      return ({ bee_update: ret, ...ret })
     }
     ).catch(error => {
       console.log("bee_update error:", error)
@@ -66,8 +67,8 @@ const data = {
   },
 
   bee_get({ letters }) {
-    var params = {
-      TableName: 'bees-dev',
+    const params = {
+      TableName: BEES_TABLE,
       KeyConditionExpression: 'user_id = :uid AND letters = :letters', 
       ExpressionAttributeValues: { 
         ':letters': letters,
@@ -80,11 +81,29 @@ const data = {
       callback => dynamodb.query(params, callback)
     ).then(result => {
       console.log('bee_get', params, result)
-      console.log(result.Items)
-      return Bee.from(result.Items[0])
+      if (result.Count == 1) {
+        return Bee.from(result.Items[0])
+      } else {
+        return null
+      }
     });
   },
 
+  bee_list({ limit, cursor }) {
+    const params = {
+      TableName:        BEES_TABLE,
+      Limit:            limit,
+      Select:           'ALL_ATTRIBUTES',
+    }
+    return promisify(callback => dynamodb.scan(params, callback)
+    ).then(result => {
+      console.log('bee_list', params, result)
+      return ({
+        bees: result.Items,
+        cursor: result.LastEvaluatedKey,
+      })
+    })
+  }
 }
 
 
@@ -92,6 +111,7 @@ const data = {
 export const resolvers = {
   Query: {
     bee_get:    (_, args) => data.bee_get(args),
+    bee_list:   (_, args) => data.bee_list(args),
   },
   Mutation: {
     bee_update: (_, args) => data.bee_update(args),
