@@ -22,13 +22,14 @@ if (process.env.NODE_ENV === 'production') {
 
 const BEES_TABLE    = (process.env.beesTable || 'BEES_TABLE_NOT_IN_ENV')
 const GUESSES_TABLE = (process.env.beesTable || 'BEES_TABLE_NOT_IN_ENV')
+const USER_ID = 'flip'
 
 // add to handler.js
 const promisify = foo =>
   new Promise((resolve, reject) => {
     foo((error, result) => {
       if (error) {
-        console.log("**** OH NOES ****");
+        console.log("**** OH NOES ****", error);
         reject(error);
         console.log("================");
       } else {
@@ -38,19 +39,19 @@ const promisify = foo =>
   });
 
 const data = {
-  bee_update({ letters, datestr, guesses, nogos }) {
+  bee_put({ letters, datestr, guesses, nogos }) {
     const bee    = {
-      user_id: 'flip', letters, datestr, guesses, nogos
+      user_id: USER_ID, letters, datestr, guesses, nogos
     }
     const params = {
       TableName: BEES_TABLE,
-      Key:  { user_id: 'flip', letters },
+      Key:  { user_id: USER_ID, letters },
       Item: bee,
     }
     return promisify(
       callback => (dynamodb.put(params, callback))
     ).then(result => {
-      console.log("bee_update succ: ", result)
+      console.log("bee_put succ: ", result)
       return ({
         success: true,
         message: `Bee '${letters}' saved`,
@@ -58,10 +59,10 @@ const data = {
       })
     }
     ).catch(error => {
-      console.log("bee_update error:", error)
+      console.log("bee_put error:", error)
       return ({
         success: false,
-        message: `bee_update error: ${JSON.stringify(error)}`,
+        message: `bee_put error: ${JSON.stringify(error)}`,
       })
     })
   },
@@ -72,7 +73,7 @@ const data = {
       KeyConditionExpression: 'user_id = :uid AND letters = :letters', 
       ExpressionAttributeValues: { 
         ':letters': letters,
-        ':uid':     'flip'
+        ':uid':     USER_ID
       },
       Limit: 1,
       Select: 'ALL_ATTRIBUTES',
@@ -95,12 +96,27 @@ const data = {
       Limit:            limit,
       Select:           'ALL_ATTRIBUTES',
     }
+    if (cursor) {
+      params.ExclusiveStartKey = {
+        user_id: USER_ID,
+        letters: cursor,
+      }
+    }
     return promisify(callback => dynamodb.scan(params, callback)
     ).then(result => {
-      console.log('bee_list', params, result)
-      return ({
+      console.log('bee_list post', params, result, cursor)
+      let cur_ltrs
+      if (result.LastEvaluatedKey) { cur_ltrs = result.LastEvaluatedKey.letters }
+      const ret = ({
         bees: result.Items,
-        cursor: result.LastEvaluatedKey,
+        cursor: cur_ltrs,
+      })
+      return ret        
+    }).catch(error => {
+      console.log("bee_list error:", error)
+      return ({
+        success: false,
+        message: `bee_list error: ${JSON.stringify(error)}`,
       })
     })
   }
@@ -114,7 +130,7 @@ export const resolvers = {
     bee_list:   (_, args) => data.bee_list(args),
   },
   Mutation: {
-    bee_update: (_, args) => data.bee_update(args),
+    bee_put: (_, args) => data.bee_put(args),
   },
   DateTime: DateTimeResolver,
   JSON: JSONResolver,

@@ -12,12 +12,12 @@ enum WeightUnit { KILOGRAM, GRAM, OUNCEWT, POUNDWT }
 enum VolumeUnit { LITER, MILLILITER, OUNCEVOL, GALLON }
 
 type Mutation {
-  bee_update(
+  bee_put(
     letters:            String!,
     datestr:            String,
     guesses:            [String],
     nogos:              [String],
-  ): BeeUpdateResp!
+  ): BeePutResp!
   
   bee_del(
     letters:          String!,
@@ -54,7 +54,7 @@ type Bee {
   nogos:              [String!]!,
 }
 
-type BeeUpdateResp {
+type BeePutResp {
   success:              Boolean!
   message:              String
   bee:                  Bee
@@ -62,26 +62,18 @@ type BeeUpdateResp {
 
 type Query {
   bee_get(
-    letters:            String!,
+    letters:            String!
   ): Bee
 
   bee_list(
-    limit:              Int!,
-    cursor:             BeeListCursorInp
+    limit:              Int!
+    cursor:             String
   ): BeeListPage!
 }
 
 type BeeListPage {
   bees:                [Bee!]!
-  cursor:              BeeListCursor
-}
-
-input BeeListCursorInp {
-  letters:              String!
-}
-
-type BeeListCursor {
-  letters:              String!
+  cursor:              String
 }
 
 

@@ -46,6 +46,8 @@ Savannah1
 value: 'arn:aws:logs:us-east-1:463510405910:log-group:/aws/api-gateway/samwise-dev'
 ```
 
+E/IPLTVX
+
 ## Dynamo
 
 Dynamo list tables
