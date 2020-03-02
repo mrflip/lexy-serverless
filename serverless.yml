@@ -78,7 +78,7 @@ custom:
 functions:
   graphql:
     handler:    handler.graphqlHandler
-    role:       LambdaDynamoReader
+    role:       LexyDynamoReader
     events:
     - http:
         path:   graphql
