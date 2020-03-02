@@ -1,0 +1,43 @@
+Resources:
+  #
+  # If you add DynamoDB Tables you must add here and in the iam-roles
+  #
+  BeesTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: ${self:custom.beesTable}
+      KeySchema:
+        - AttributeName: user_id
+          KeyType:       HASH
+        - AttributeName: letters
+          KeyType:       RANGE
+      AttributeDefinitions:
+        - AttributeName: user_id
+          AttributeType: S
+        - AttributeName: letters
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      # ProvisionedThroughput:
+      #   ReadCapacityUnits: 10
+      #   WriteCapacityUnits: 10
+
+
+  WordsTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: ${self:custom.guessesTable}
+      KeySchema:
+        - AttributeName: user_bee_id
+          KeyType:       HASH
+        - AttributeName: word
+          KeyType:       RANGE
+      # Only list the attributes in the key or secondary idxs
+      AttributeDefinitions:
+        - AttributeName: user_bee_id
+          AttributeType: S
+        - AttributeName: word
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      # ProvisionedThroughput:
+      #   ReadCapacityUnits: 10
+      #   WriteCapacityUnits: 10

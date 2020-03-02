@@ -62,11 +62,24 @@ dynamodb.listTables(params, function(err, data) {
 
 ```
 var params = {
-    TableName: 'Products',
+    TableName: 'bees-dev',
     Limit: 3,
     Select: 'ALL_ATTRIBUTES',
 };
 dynamodb.scan(params, function(err, data) {
+    if (err) ppJson(err); // an error occurred
+    else ppJson(data); // successful response
+});
+
+
+var params = {
+    TableName: 'bees-dev',
+    Item: { 
+        user_id: "flip",
+        letters: "CAIHLRV"
+    }
+};
+dynamodb.put(params, function(err, data) {
     if (err) ppJson(err); // an error occurred
     else ppJson(data); // successful response
 });

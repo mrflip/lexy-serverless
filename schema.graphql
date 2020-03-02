@@ -3,20 +3,26 @@
 ##
 ##  Strong Scalar Types
 
-scalar Date
+scalar DateTime
+scalar JSON
+scalar JSONObject
 
 enum LengthUnit { METER, MILLIMETER, INCH, FOOT }
 enum WeightUnit { KILOGRAM, GRAM, OUNCEWT, POUNDWT }
 enum VolumeUnit { LITER, MILLILITER, OUNCEVOL, GALLON }
 
 type Mutation {
-  bee_add(
+  bee_update(
     letters:            String!,
     datestr:            String,
-  ): String!
+    guesses:            [String],
+    nogos:              [String],
+  ): BeeUpdateResp!
+  
   bee_del(
     letters:            String!,
   ): String!
+  
   guess_add(
     letters:           String!,
     guess:              String!,
@@ -25,24 +31,39 @@ type Mutation {
     score:              Int!,
     scrabble:           Boolean!,
   ): String!
+  
   guess_del(
     guess:              String!,
   ): BeeGuess!
+  
 }
 
 type BeeGuess {
-    guess:              String!,
-    len:                Int!,
-    isPangram:          Boolean!,
-    score:              Int!,
-    scrabble:           Boolean!,
-}  
+  word:               String!
+  len:                Int!
+  isPan:              Boolean!
+  valid:              Boolean!
+  scrabble:           Boolean!
+  score:              Int!
+}
+
+type Bee {
+  letters:            String,
+  datestr:            String,
+  guesses:            [String],
+  nogos:              [String],
+}
+
+type BeeUpdateResp {
+  success: Boolean!
+  message: String
+  bee:     Bee
+}
 
 type Query {
-  bee_guesses(
-    limit:     Int,
-    nextToken: BeeGuessTokInp
-  ): BeeGuessesList
+  bee_get(
+    letters: String!,
+  ): Bee
 }
 
 # https://schema.org/Product
@@ -52,147 +73,16 @@ input ProductInp {
 
 }
 
-# https://schema.org/Product
-type Product {
-  id:           	ID!,
-  name:         	String!,
-  description:  	String,
-  url:          	String,
-  image_url:    	String,
-  isKindOf:     	ID,
-  manufacturer: 	String,
-  brand:                String,
-  brand_code:           String,
-  model_num:            String,
-  mpn:          	String,
-  category:     	String,
-  unspsc:               String,
-  nsn:          	String,
-  gtin:         	String,
-  upc:                  String,
-  asin:                 String,
-  condition:            String,
-  price:                Float,
-  #
-  # rating_agg:   	Float,  #
-  # rating_votes: 	Int,
-  # sku:          	String,
-  # lot_id:       	String,
-  # length:      	Float,
-  # width:       	Float,
-  # height:      	Float,
-  # weight:      	Float,
-  # color:        	String
-  #
-  # offers:     	[Offer]
-  # hasMerchantReturnPolicy:
-  # isConsumableFor: 	Product
-  # isRelatedTo:     	Product
-  #
-}
-
-type Category {
-  name:                 String!,
-}
-
-directive @aws_subscribe(mutations: [String]) on FIELD_DEFINITION
-
-
-type Subscription {
-  addProduct: Product
-  @aws_subscribe(mutations: 	["productUpdate"])
-}
-
-# type Merchant {
-# }
+# directive @aws_subscribe(mutations: [String]) on FIELD_DEFINITION
 # 
-# type Org {
-# }
 # 
-# type Thing {
+# type Subscription {
+#   addProduct: Product
+#   @aws_subscribe(mutations: 	["productUpdate"])
 # }
-#
-
-##
-## Places
-##
-
-# https://schema.org/Place
-type Place {
-  id:           	ID!
-  name:         	String!
-  image_url:    	String
-  scope:        	String # site, building, branch_code, floor, room, cabinet, position, etc.
-  #
-  # address:      	String
-  # longitude:    	Float
-  # latitude:     	Float
-  #
-  contained_in: 	Place
-}
-
-##
-## Inventory
-##
-
-# Mapping of products that should be in each space
-type ProductCollection {
-  id:           	ID!
-  name:         	String!  
-}
-
-# Totals of stock across all the installed spaces
-#
-#
-
-##
-## Shopping List
-##
-
-
-##
-## Merchant
-##
-
-
-##
-## Products
-##
-##
-
-
-type ProductListToken {
-    product_id : String
-}
-input ProductListTokenInp {
-    product_id : String!
-}
-type ProductListPage {
-  products:  [Product!]!
-  nextToken: ProductListToken
-}
-
-## "Toilet Paper" is a ProductKind; "Charmin Ultra Soft 24 Mega Rolls" is a Product
-type ProductKind {
-  id:            	ID!
-  name:          	String!
-  description:   	String
-  image_url:     	String
-  # http://www.productontology.org/id/Racing_bicycle
-}
-
-## IndividualProduct is a specific physical object, e.g. "Macbook with
-## serial #234234 and lots of stickers on it and a crack in the corner
-## of its screen"
-type IndividualProduct {
-  id:            	ID!
-  name:          	String!
-  description:   	String
-  serial_number: 	String
-}
 
 schema {
   query:              	Query
   mutation:           	Mutation
-  subscription:       	Subscription
+  # subscription:      	Subscription
 }

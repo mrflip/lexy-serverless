@@ -38,7 +38,7 @@ provider:
 custom:
   stage:           ${opt:stage, self:provider.stage}
   beesTable:       bees-${self:custom.stage}
-  guessesTable:      guesses-${self:custom.stage}
+  guessesTable:    guesses-${self:custom.stage}
   #
   serverless-offline:
     port: 4000
@@ -55,9 +55,9 @@ custom:
       inMemory: true
       migrate: true
       seed: true
-    seed:
-      test:
-        sources:
+    # seed:
+    #   test:
+    #     sources:
           # - table: ${self:custom.productsTable}
           #   sources: [seed-data/Products.json]
 

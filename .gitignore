@@ -24,7 +24,7 @@ coverage
 
 # Keys
 .env*
-.secret*
+*[Ss]ecret*
 
 # nyc test coverage
 .nyc_output

@@ -1,21 +1,23 @@
 // add to handler.js
-import dynamodb              from 'serverless-dynamodb-client';
+import dynamodbClient        from 'serverless-dynamodb-client';
 import AWSSdk                from 'aws-sdk';
 import AWSXRay               from 'aws-xray-sdk';
 
 import { GraphQLScalarType } from 'graphql';
 import { Kind }              from 'graphql/language';
-
+import { DateTimeResolver, JSONResolver, JSONObjectResolver,
+}                            from 'graphql-scalars'
 import Secrets               from './Secrets'
+import Bee                   from '../lexy/lib/Bee'
 
-let docClient;
+let dynamodb;
 // console.log(process.env.NODE_ENV);
 // console.log(process.env);
 if (process.env.NODE_ENV === 'production') {
   const AWS = AWSXRay.captureAWS(AWSSdk);
-  docClient = new AWS.DynamoDB.DocumentClient();
+  dynamodb = new AWS.DynamoDB.DocumentClient();
 } else {
-  docClient = dynamodb.doc;
+  dynamodb = dynamodbClient.doc;
 }
 
 // add to handler.js
@@ -31,68 +33,57 @@ const promisify = foo =>
       }
     });
   });
-//const makeGuess = ({ bee_ltrs, word, user_id }) => (
-//  )
-
-const makeProduct = (
-  { id, name, description, url, image_url, isKindOf, manufacturer, category, mpn, nsn, gtin, brand}
-) => {
-  brand = "v1";
-  return (
-  { id, name, description, url, image_url, isKindOf, manufacturer, category, mpn, nsn, gtin, brand }
-); };
 
 const data = {
-  bee_update({user_id, bee}) {
-  }  
-    
-  
-  product_amz_search({limit, term, nextToken, ...rest}) {
-    amzClient.itemSearch({
-      director:      'Quentin Tarantino',
-      searchIndex:   'DVD',
-      responseGroup: 'ItemAttributes,Images',
-    }).then(result => {
-      console.log("product_amz_search result: ", result);
-      return { items: [], }
-    }).catch(error => {
-      console.log("product_amz_search error: ", error, error.Error[0])
+  bee_update({ letters, datestr, guesses, nogos, ...rest }) {
+    const bee =  { user_id: 'flip', letters, datestr, guesses, nogos }
+    const params = {
+      TableName: 'bees-dev',
+      Key:  { user_id: 'flip', letters, },
+      Item: bee,
+    }
+    console.log(params, rest)
+    return promisify(
+      callback => (dynamodb.put(params, callback))
+    ).then(result => {
+      console.log("bee_update succ: ", result)
+      // const bee = { ...result.Attributes, letters, datestr, guesses, nogos }
+      const ret = ({
+        success: true,
+        message: `Bee '${letters}' saved`,
+        bee
+      })
+      console.log(ret)
+      return ({ bee_update: ret, ...ret })
+    }
+    ).catch(error => {
+      console.log("bee_update error:", error)
+      return ({
+        success: false,
+        message: `bee_update error: ${JSON.stringify(error)}`,
+      })
     })
   },
 
-  product_list_page(args) {
-    return promisify(callback => {
-      console.log("ARGS");
-      console.log(args)
-      const params = {
-        TableName: 'products-dev',
-        Limit: args.limit,
-        Select: 'ALL_ATTRIBUTES',
-      };
-      console.log("HERE!!!!!");
-      docClient.scan(params, callback);
-    }).then(result => {
-      const prod_items = [];
-      let prodList;
-      //
-      if (result.Items.length >= 1) {
-        prodList = { products: [], };
-      }
-      //
-      result.Items.forEach((product) => {
-        prod_items.push(makeProduct(product));
-      });
-      //
-      prodList.products = prod_items;
-      if (result.LastEvaluatedKey) {
-        prodList.nextToken = {
-          id: result.LastEvaluatedKey.id
-        }
-      }
-      return prodList;
+  bee_get({ letters }) {
+    var params = {
+      TableName: 'bees-dev',
+      KeyConditionExpression: 'user_id = :uid AND letters = :letters', 
+      ExpressionAttributeValues: { 
+        ':letters': letters,
+        ':uid':     'flip'
+      },
+      Limit: 1,
+      Select: 'ALL_ATTRIBUTES',
+    };
+    return promisify(
+      callback => dynamodb.query(params, callback)
+    ).then(result => {
+      console.log('bee_get', params, result)
+      console.log(result.Items)
+      return Bee.from(result.Items[0])
     });
   },
-
 
 }
 
@@ -100,23 +91,12 @@ const data = {
 // eslint-disable-next-line import/prefer-default-export
 export const resolvers = {
   Query: {
-    product_list_page: (root, args) => data.product_list_page(args),
-    product_amz_search: (root, args) => data.product_amz_search(args),
+    bee_get:    (_, args) => data.bee_get(args),
   },
-  Date: new GraphQLScalarType({
-    name: 'Date',
-    description: 'Date custom scalar type',
-    parseValue(value) {
-      return new Date(value); // value from the client
-    },
-    serialize(value) {
-      return value.getTime(); // value sent to the client
-    },
-    parseLiteral(ast) {
-      if (ast.kind === Kind.INT) {
-        return new Date(ast.value) // ast value is always in string format
-      }
-      return null;
-    },
-  }),
+  Mutation: {
+    bee_update: (_, args) => data.bee_update(args),
+  },
+  DateTime: DateTimeResolver,
+  JSON: JSONResolver,
+  JSONObject: JSONObjectResolver,
 };
