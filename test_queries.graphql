@@ -1,0 +1,71 @@
+mutation bee_put_mu($letters: String!, $guesses: [String!]) {
+  bee_put(
+    letters: $letters, guesses: $guesses, nogos: [], 
+    datestr: "2019-10-03"
+  ) {
+    success
+    message
+    bee { letters, guesses, nogos }
+  }
+}
+
+query bee_list_qy {
+  bee_list(limit:200) {
+    bees {
+      letters, datestr, guesses, nogos
+    }
+     
+  }
+}
+
+query bee_get_qy {
+  bee_get(letters:"LOUFGHR") {
+    bee {
+    letters
+    guesses
+    datestr
+    nogos
+    }
+		success
+    message
+  }
+}
+
+mutation bee_del_mu($letters: String!) {
+  bee_del(
+    letters: $letters
+  ) {
+    success
+    message
+    bee { letters, guesses, nogos }
+  }
+}
+
+
+query bee_list_qy {
+  bee_list(limit:200) {
+    bees {
+      letters, datestr, guesses, nogos
+    }  
+  }
+}
+
+query guess_list_qy($bee_id: String!, $limit: Int, $cursor: String) {
+  guess_list(bee_id: $bee_id, limit: $limit, cursor: $cursor) {
+    guesses {
+      word
+    }  
+  }
+}
+
+# { "limit": 200, "bee_id": "CAIHLRV" }
+
+mutation guess_put_mu($bee_id: String!, $word:String!) {
+  guess_put(
+    bee_id: $bee_id, word: $word
+  ) {
+    success
+    message
+    guess { bee_id word }
+  }
+}

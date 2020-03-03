@@ -20,49 +20,42 @@ type Mutation {
   ): BeeMuResp!
   
   bee_del(
-    letters:          String!,
+    letters:            String!,
   ): BeeMuResp!
   
-  guess_add(
-    letters:          String!,
-    guess:            String!,
-    score:            Int!,
-    isPangram:        Boolean!,
-    score:            Int!,
-    scrabble:         Boolean!,
-  ): String!
+  guess_put(
+    bee_id:             String!,
+    word:               String!,
+  ): GuessMuResp!
   
   guess_del(
-    guess:            String!,
-  ): BeeGuess!
+    bee_id:             String!,
+    word:               String!,
+  ): GuessMuResp!
   
 }
 
 type Query {
   bee_get(
     letters:            String!
-  ): Bee
+  ): BeeGetResp!
 
   bee_list(
-    limit:              Int!
+    limit:              Int
     cursor:             String
   ): BeeListPage!
+
+  guess_list(
+    bee_id:             String!
+    limit:              Int
+    cursor:             String
+  ): GuessListResp!
 }
 
-type Bee {
-  letters:            String!,
-  datestr:            String,
-  guesses:            [String!]!,
-  nogos:              [String!]!,
-}
-
-type BeeGuess {
-  word:               String!
-  len:                Int!
-  isPan:              Boolean!
-  valid:              Boolean!
-  scrabble:           Boolean!
-  score:              Int!
+type BeeGetResp {
+  success:              Boolean!
+  message:              String
+  bee:                  Bee
 }
 
 type BeeMuResp {
@@ -71,9 +64,41 @@ type BeeMuResp {
   bee:                  Bee
 }
 
+type GuessMuResp {
+  success:              Boolean!
+  message:              String
+  guess:                Guess
+}
+
+
+type GuessListResp {
+  success:              Boolean!
+  message:              String
+  guesses:              [Guess!]!
+}
+
 type BeeListPage {
-  bees:                [Bee!]!
-  cursor:              String
+  success:              Boolean!
+  message:              String
+  bees:                 [Bee!]!
+  cursor:               String
+}
+
+type Bee {
+  letters:              String!,
+  datestr:              String,
+  guesses:              [String!]!,
+  nogos:                [String!]!,
+}
+
+type Guess {
+  bee_id:               String!
+  word:                 String!
+  # len:                Int!
+  # isPan:              Boolean!
+  # valid:              Boolean!
+  # scrabble:           Boolean!
+  # score:              Int!
 }
 
 # directive @aws_subscribe(mutations: [String]) on FIELD_DEFINITION

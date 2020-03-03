@@ -7,28 +7,44 @@ import DynamoHelper          from './DynamoHelper'
 
 const USER_ID = 'flip'
 
-const BEES_TABLE    = (process.env.beesTable || 'BEES_TABLE_NOT_IN_ENV')
-const GUESSES_TABLE = (process.env.beesTable || 'BEES_TABLE_NOT_IN_ENV')
+const BEES_TABLE    = (process.env.beesTable    || 'BEES_TABLE_NOT_IN_ENV')
+const GUESSES_TABLE = (process.env.guessesTable || 'GUESSES_TABLE_NOT_IN_ENV')
 
 const BeesDB    = new DynamoHelper(BEES_TABLE)
 const GuessesDB = new DynamoHelper(GUESSES_TABLE)
+
+const error_handler = (fn) => (
+  (error) => {
+    // console.log('eh', error)
+    return     ({
+    success: false,
+    message: `${fn} error: ${JSON.stringify(error)}`,
+    })
+  }
+)
+
+const user_bee_id = (bee_id) => [bee_id, USER_ID].join('~')
 
 const data = {
   bee_put({ letters, datestr, guesses = [], nogos = [] }) {
     const bee    = {
       user_id: USER_ID, letters, datestr, guesses, nogos
     }
-    return BeesDB.put({
-      key: { user_id: USER_ID, letters },
-      item: bee,
-    }).then(_ => ({
+    return BeesDB.put({ item: bee }).then(_ => ({
       success: true,
       message: `Bee '${letters}' saved`,
       bee,
-    })).catch(error => ({
-      success: false,
-      message: `bee_put error: ${JSON.stringify(error)}`,
-    }))
+    })).catch(error_handler('bee_put'))
+  },
+
+  guess_put({ bee_id, word }) {
+    return GuessesDB.put({
+      item: { user_bee_id: user_bee_id(bee_id), word },
+    }).then(_ => ({
+      success: true,
+      message: `Guess saved`,
+      guess:   { bee_id, word },
+    })).catch(error_handler('guess_put'))
   },
 
   bee_del({ letters }) {
@@ -51,15 +67,14 @@ const data = {
     return BeesDB.get({
       key: { user_id: USER_ID, letters },
     }).then(({ obj, count }) => {
-      // console.log('bee_get', count, obj)
-      if (count == 1) {
-        const ret = Bee.from(obj).serialize()
-        // console.log('bg ret', ret)
-        return ret
-      } else {
-        return null
-      }
-    });
+      let bee
+      if (count == 1) { bee = Bee.from(obj).serialize() }
+      return ({
+        success: true,
+        message: `Bee '${letters}' gotten`,
+        bee:     bee
+      })
+    }).catch(error_handler('bee_get'))
   },
 
   bee_list({ limit, cursor }) {
@@ -71,16 +86,31 @@ const data = {
       let cur_ltrs
       if (nextCursor) { cur_ltrs = nextCursor.letters }
       return ({
+        success: true,
+        message: `bee_list fetched`,
         bees:   items,
         cursor: cur_ltrs,
       })
-    }).catch(error => {
-      console.log("bee_list error:", error)
+    }).catch(error_handler('bee_list'))
+  },
+
+  guess_list({ bee_id, limit, cursor }) {
+    const cc = (cursor ? { user_bee_id: user_bee_id(bee_id), word: cursor } : null)
+    return GuessesDB.list({
+      limit,
+      cursor: cc,
+      slice:  user_bee_id,
+    }).then(({ items, nextCursor }) => {
+      console.log('guess_list', items, nextCursor)
+      let cur_wd
+      if (nextCursor) { cur_wd = nextCursor.word }
       return ({
-        success: false,
-        message: `bee_list error: ${JSON.stringify(error)}`,
+        success:  true,
+        message:  `guesses_list fetched for ${bee_id}`,
+        guesses:  items,
+        cursor:   cur_wd,
       })
-    })
+    }).catch(error_handler('guess_list'))
   }
 }
 
@@ -90,9 +120,13 @@ export const resolvers = {
   Query: {
     bee_get:    (_, args) => data.bee_get(args),
     bee_list:   (_, args) => data.bee_list(args),
+    // guess_get:  (_, args) => data.guess_get(args),
+    guess_list: (_, args) => data.guess_list(args),
   },
   Mutation: {
-    bee_put: (_, args) => data.bee_put(args),
-    bee_del: (_, args) => data.bee_del(args),
+    bee_put:    (_, args) => data.bee_put(args),
+    bee_del:    (_, args) => data.bee_del(args),
+    guess_put:  (_, args) => data.guess_put(args),
+    guess_del:  (_, args) => data.guess_del(args),
   },
 };

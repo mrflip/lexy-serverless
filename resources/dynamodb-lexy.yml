@@ -22,7 +22,7 @@ Resources:
       #   WriteCapacityUnits: 10
 
 
-  WordsTable:
+  GuessesTable:
     Type: 'AWS::DynamoDB::Table'
     Properties:
       TableName: ${self:custom.guessesTable}
