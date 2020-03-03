@@ -1,112 +1,60 @@
 // add to handler.js
-import dynamodbClient        from 'serverless-dynamodb-client';
-import AWSSdk                from 'aws-sdk';
-import AWSXRay               from 'aws-xray-sdk';
-
 import { GraphQLScalarType } from 'graphql';
 import { Kind }              from 'graphql/language';
-import { DateTimeResolver, JSONResolver, JSONObjectResolver,
-}                            from 'graphql-scalars'
-import Secrets               from './Secrets'
 import Bee                   from '../lexy/src/lib/Bee'
 import _                     from 'lodash'
+import DynamoHelper          from './DynamoHelper'
 
-let dynamodb;
-//console.log(process.env);
-
-if (process.env.NODE_ENV === 'production') {
-  const AWS = AWSXRay.captureAWS(AWSSdk);
-  dynamodb = new AWS.DynamoDB.DocumentClient();
-} else {
-  dynamodb = dynamodbClient.doc;
-}
+const USER_ID = 'flip'
 
 const BEES_TABLE    = (process.env.beesTable || 'BEES_TABLE_NOT_IN_ENV')
 const GUESSES_TABLE = (process.env.beesTable || 'BEES_TABLE_NOT_IN_ENV')
-const USER_ID = 'flip'
 
-// add to handler.js
-const promisify = foo =>
-  new Promise((resolve, reject) => {
-    foo((error, result) => {
-      if (error) {
-        console.log("**** OH NOES ****", error);
-        reject(error);
-        console.log("================");
-      } else {
-        resolve(result);
-      }
-    });
-  });
+const BeesDB    = new DynamoHelper(BEES_TABLE)
+const GuessesDB = new DynamoHelper(GUESSES_TABLE)
 
 const data = {
   bee_put({ letters, datestr, guesses = [], nogos = [] }) {
     const bee    = {
       user_id: USER_ID, letters, datestr, guesses, nogos
     }
-    const params = {
-      TableName: BEES_TABLE,
-      Key:  { user_id: USER_ID, letters },
-      Item: bee,
-    }
-    return promisify(
-      callback => (dynamodb.put(params, callback))
-    ).then(result => {
-      console.log("bee_put succ: ", result)
-      return ({
-        success: true,
-        message: `Bee '${letters}' saved`,
-        bee
-      })
-    }
-    ).catch(error => {
-      console.log("bee_put error:", error)
-      return ({
-        success: false,
-        message: `bee_put error: ${JSON.stringify(error)}`,
-      })
-    })
+    return BeesDB.put({
+      key: { user_id: USER_ID, letters },
+      item: bee,
+    }).then(_ => ({
+      success: true,
+      message: `Bee '${letters}' saved`,
+      bee,
+    })).catch(error => ({
+      success: false,
+      message: `bee_put error: ${JSON.stringify(error)}`,
+    }))
   },
 
   bee_del({ letters }) {
-    const params = {
-      TableName: BEES_TABLE,
-      Key: { user_id: USER_ID, letters },
-      ReturnValues: 'ALL_OLD',
-    }
-    return promisify(
-      callback => dynamodb.delete(params, callback)
-    ).then(result => {
-      console.log('bee_del', params, result)
-      const { datestr, guesses = [], nogos = [] } = (result.Attributes || {})
-      const ret = ({
+    return BeesDB.del({
+      key: { user_id: USER_ID, letters },
+    }).then(({ obj }) => {
+      const { datestr, guesses = [], nogos = [] } = obj
+      return ({
         success: true,
         message: `Bee '${letters}' removed`,
         bee:     { letters, datestr, guesses, nogos },
       })
-      console.log('bd ret', ret)
-      return ret
-    })
+    }).catch(error => ({
+      success: false,
+      message: `bee_put error: ${JSON.stringify(error)}`,
+    }))
   },
 
   bee_get({ letters }) {
-    const params = {
-      TableName: BEES_TABLE,
-      KeyConditionExpression: 'user_id = :uid AND letters = :letters', 
-      ExpressionAttributeValues: { 
-        ':letters': letters,
-        ':uid':     USER_ID
-      },
-      Limit: 1,
-      Select: 'ALL_ATTRIBUTES',
-    };
-    return promisify(
-      callback => dynamodb.query(params, callback)
-    ).then(result => {
-      console.log('bee_get', params, result)
-      if (result.Count == 1) {
-        const ret = Bee.from(result.Items[0]).serialize()
-        console.log('bg ret', ret)
+    return BeesDB.get({
+      key: { user_id: USER_ID, letters },
+    }).then(({ obj, count }) => {
+      // console.log('bee_get', count, obj)
+      if (count == 1) {
+        const ret = Bee.from(obj).serialize()
+        // console.log('bg ret', ret)
         return ret
       } else {
         return null
@@ -115,27 +63,17 @@ const data = {
   },
 
   bee_list({ limit, cursor }) {
-    const params = {
-      TableName:        BEES_TABLE,
-      Limit:            limit,
-      Select:           'ALL_ATTRIBUTES',
-    }
-    if (cursor) {
-      params.ExclusiveStartKey = {
-        user_id: USER_ID,
-        letters: cursor,
-      }
-    }
-    return promisify(callback => dynamodb.scan(params, callback)
-    ).then(result => {
-      console.log('bee_list post', params, result, cursor)
+    const cc = (cursor ? { user_id: USER_ID, letters: cursor } : null)
+    return BeesDB.list({
+      limit, cursor: cc
+    }).then(({ items, nextCursor }) => {
+      console.log('bee_list post', items, nextCursor)
       let cur_ltrs
-      if (result.LastEvaluatedKey) { cur_ltrs = result.LastEvaluatedKey.letters }
-      const ret = ({
-        bees: result.Items,
+      if (nextCursor) { cur_ltrs = nextCursor.letters }
+      return ({
+        bees:   items,
         cursor: cur_ltrs,
       })
-      return ret        
     }).catch(error => {
       console.log("bee_list error:", error)
       return ({
@@ -157,7 +95,4 @@ export const resolvers = {
     bee_put: (_, args) => data.bee_put(args),
     bee_del: (_, args) => data.bee_del(args),
   },
-  DateTime: DateTimeResolver,
-  JSON: JSONResolver,
-  JSONObject: JSONObjectResolver,
 };
