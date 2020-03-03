@@ -17,11 +17,11 @@ type Mutation {
     datestr:            String,
     guesses:            [String],
     nogos:              [String],
-  ): BeePutResp!
+  ): BeeMuResp!
   
   bee_del(
     letters:          String!,
-  ): String!
+  ): BeeMuResp!
   
   guess_add(
     letters:          String!,
@@ -38,28 +38,6 @@ type Mutation {
   
 }
 
-type BeeGuess {
-  word:               String!
-  len:                Int!
-  isPan:              Boolean!
-  valid:              Boolean!
-  scrabble:           Boolean!
-  score:              Int!
-}
-
-type Bee {
-  letters:            String!,
-  datestr:            String,
-  guesses:            [String!]!,
-  nogos:              [String!]!,
-}
-
-type BeePutResp {
-  success:              Boolean!
-  message:              String
-  bee:                  Bee
-}
-
 type Query {
   bee_get(
     letters:            String!
@@ -71,12 +49,32 @@ type Query {
   ): BeeListPage!
 }
 
+type Bee {
+  letters:            String!,
+  datestr:            String,
+  guesses:            [String!]!,
+  nogos:              [String!]!,
+}
+
+type BeeGuess {
+  word:               String!
+  len:                Int!
+  isPan:              Boolean!
+  valid:              Boolean!
+  scrabble:           Boolean!
+  score:              Int!
+}
+
+type BeeMuResp {
+  success:              Boolean!
+  message:              String
+  bee:                  Bee
+}
+
 type BeeListPage {
   bees:                [Bee!]!
   cursor:              String
 }
-
-
 
 # directive @aws_subscribe(mutations: [String]) on FIELD_DEFINITION
 # 

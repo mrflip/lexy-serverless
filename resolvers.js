@@ -8,7 +8,8 @@ import { Kind }              from 'graphql/language';
 import { DateTimeResolver, JSONResolver, JSONObjectResolver,
 }                            from 'graphql-scalars'
 import Secrets               from './Secrets'
-import Bee                   from '../lexy/lib/Bee'
+import Bee                   from '../lexy/src/lib/Bee'
+import _                     from 'lodash'
 
 let dynamodb;
 //console.log(process.env);
@@ -39,7 +40,7 @@ const promisify = foo =>
   });
 
 const data = {
-  bee_put({ letters, datestr, guesses, nogos }) {
+  bee_put({ letters, datestr, guesses = [], nogos = [] }) {
     const bee    = {
       user_id: USER_ID, letters, datestr, guesses, nogos
     }
@@ -67,6 +68,27 @@ const data = {
     })
   },
 
+  bee_del({ letters }) {
+    const params = {
+      TableName: BEES_TABLE,
+      Key: { user_id: USER_ID, letters },
+      ReturnValues: 'ALL_OLD',
+    }
+    return promisify(
+      callback => dynamodb.delete(params, callback)
+    ).then(result => {
+      console.log('bee_del', params, result)
+      const { datestr, guesses = [], nogos = [] } = (result.Attributes || {})
+      const ret = ({
+        success: true,
+        message: `Bee '${letters}' removed`,
+        bee:     { letters, datestr, guesses, nogos },
+      })
+      console.log('bd ret', ret)
+      return ret
+    })
+  },
+
   bee_get({ letters }) {
     const params = {
       TableName: BEES_TABLE,
@@ -83,7 +105,9 @@ const data = {
     ).then(result => {
       console.log('bee_get', params, result)
       if (result.Count == 1) {
-        return Bee.from(result.Items[0])
+        const ret = Bee.from(result.Items[0]).serialize()
+        console.log('bg ret', ret)
+        return ret
       } else {
         return null
       }
@@ -131,6 +155,7 @@ export const resolvers = {
   },
   Mutation: {
     bee_put: (_, args) => data.bee_put(args),
+    bee_del: (_, args) => data.bee_del(args),
   },
   DateTime: DateTimeResolver,
   JSON: JSONResolver,
