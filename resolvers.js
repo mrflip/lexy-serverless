@@ -76,9 +76,9 @@ const data = {
     return BeesDB.list({
       key:              { user_id: USER_ID },
       limit,
+      sortby,
+      sortrev,
       cursor:           cc,
-      sortby:           'bydatestr',
-      sortrev:          true,
     }).then(({ items, nextCursor }) => {
       if (nextCursor) { delete nextCursor.user_id }
       const answer = {
@@ -87,7 +87,7 @@ const data = {
         bees:           (items || []),
         cursor:         nextCursor && JSON.stringify(nextCursor),
       }
-      console.log('bee_list answer', answer, answer.bees.length)
+      // console.log('bee_list answer', answer, answer.bees.length)
       return answer
     }).catch(error_handler('bee_list', params))
   },
