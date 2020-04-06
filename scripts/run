@@ -1,0 +1,4 @@
+#!/bin/sh
+
+where=$1; shift
+./node_modules/env-cmd/bin/env-cmd.js -f ./.secrets.env.${where} node -r esm --harmony $*
