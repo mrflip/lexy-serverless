@@ -2,38 +2,33 @@ Resources:
   LexyDynamoReader:
     Type: "AWS::IAM::Role"
     Properties:
-      RoleName: "LexyDynamoReader"
+      RoleName: "LexyDynamoReader${self:custom.stage}"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
-          -
-            Effect: "Allow"
+          - Effect: "Allow"
             Principal:
               Service:
                 - "lambda.amazonaws.com"
             Action:
               - "sts:AssumeRole"
       Policies:
-        -
-          PolicyName: "CloudWatch-Logger-Policy"
+        - PolicyName: "CloudWatch-Logger-Policy"
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
-              -
-                Effect: "Allow"
+              - Effect: "Allow"
                 Action:
                   - "logs:CreateLogGroup"
                   - "logs:CreateLogStream"
                   - "logs:PutLogEvents"
                 Resource:
                   - "*"
-        -
-          PolicyName: "Dynamo-ServiceRole-Policy"
+        - PolicyName: "Dynamo-ServiceRole-Policy"
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
-              -
-                Effect: "Allow"
+              - Effect: "Allow"
                 Action:
                   - "dynamodb:Query"
                   - "dynamodb:BatchWriteItem"
@@ -43,11 +38,11 @@ Resources:
                   - "dynamodb:Scan"
                   - "dynamodb:UpdateItem"
                 Resource:
-                  - "arn:aws:dynamodb:us-east-1:*:table/bees-dev"
-                  - "arn:aws:dynamodb:us-east-1:*:table/bees-dev/*"
-                  - "arn:aws:dynamodb:us-east-1:*:table/guesses-dev"
-                  - "arn:aws:dynamodb:us-east-1:*:table/guesses-dev/*"
-                  
+                  - "arn:aws:dynamodb:us-east-1:*:table/bees-${self:custom.stage}"
+                  - "arn:aws:dynamodb:us-east-1:*:table/bees-${self:custom.stage}/*"
+                  - "arn:aws:dynamodb:us-east-1:*:table/guesses-${self:custom.stage}"
+                  - "arn:aws:dynamodb:us-east-1:*:table/guesses-${self:custom.stage}/*"
+
   LexyXrayRolePolicy:
     Type: "AWS::IAM::Policy"
     Properties:
@@ -55,8 +50,7 @@ Resources:
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
-          -
-            Effect: "Allow"
+          - Effect: "Allow"
             Action:
               - "xray:PutTraceSegments"
               - "xray:PutTelemetryRecords"

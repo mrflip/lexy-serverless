@@ -2,19 +2,30 @@ import dynamodbClient        from 'serverless-dynamodb-client';
 import AWSSdk                from 'aws-sdk';
 import AWSXRay               from 'aws-xray-sdk';
 //
-import Secrets               from './Secrets'
 
 let dynamodb;
 //console.log(process.env);
 
-if (process.env.NODE_ENV === 'production') {
+if (process.env.LOCAL_DYNAMO === 'true') {
+  dynamodb = dynamodbClient.doc;
+} else if (process.env.USE_XRAY === 'true') {
   const AWS = AWSXRay.captureAWS(AWSSdk);
   dynamodb = new AWS.DynamoDB.DocumentClient();
 } else {
-  dynamodb = dynamodbClient.doc;
+  dynamodb = new AWSSdk.DynamoDB.DocumentClient();
 }
 
-class DynamoHelper {
+export const error_handler = (fn) => (
+  (error) => {
+    console.warn('Error Handler', error)
+    return     ({
+      success: false,
+      message: `${fn} error: ${error} (${JSON.stringify(error)})`,
+    })
+  }
+)
+
+export class DynamoHelper {
   constructor (tbl) {
     this.table = tbl
   }
@@ -38,7 +49,7 @@ class DynamoHelper {
       TableName: this.table,
       Item: item,
     }
-    console.log('dydb put', key, item, params)
+    // console.log('dydb put', key, params)
     return promisify(
       callback => (dynamodb.put(params, callback)),
       response => ({
@@ -48,15 +59,18 @@ class DynamoHelper {
     )
   }
 
-  list({ limit, cursor, select = 'ALL_ATTRIBUTES' }) {
+  scan({ limit, cursor, sortby, select = 'ALL_ATTRIBUTES' }) {
     const params = {
       TableName:        this.table,
       Limit:            limit,
       Select:           select,
+      IndexName:        sortby,
+      ScanIndexForward: false,
     }
     if (cursor) {
       params.ExclusiveStartKey = cursor
     }
+    console.log(params)
     return promisify(
       callback => dynamodb.scan(params, callback),
       response => ({
@@ -65,6 +79,39 @@ class DynamoHelper {
         nextCursor: response.LastEvaluatedKey,
       })
     )
+  }
+
+  list({ limit, cursor, key, sortby, sortrev, select = 'ALL_ATTRIBUTES' }) {
+    const params = {
+      TableName:                this.table,
+      Limit:                    limit,
+      Select:                   select,
+      IndexName:                sortby,
+      ScanIndexForward:         (! sortrev),
+      KeyConditionExpression:   this.key_condition(key),
+      ExpressionAttributeValues: this.attribute_values(key),
+    }
+    if (cursor) {
+      params.ExclusiveStartKey = cursor
+    }
+    console.log(params, cursor)
+    return new Promise((resolve, reject) => {
+      dynamodb.query(params, (error, response) => {
+        if (error) {
+          console.log('DynamoHelper.get error:', error, 'key:', key, 'params:', params)
+          reject(error)
+        } else {
+          // console.log(response)
+          const resp_obj = {
+            response,
+            items:      response.Items,
+            count:      response.Count,
+            nextCursor: response.LastEvaluatedKey,
+          }
+          resolve(resp_obj)
+        }
+      })
+    })
   }
 
   get({ key }) {
@@ -101,7 +148,7 @@ class DynamoHelper {
     return Object.fromEntries(
       Object.entries(attrs).map(([kk, vv]) => [`:${kk}`, vv]))
   }
-  
+
 }
 
 const promisify = (func, fixup) =>

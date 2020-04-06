@@ -18,21 +18,21 @@ type Mutation {
     guesses:            [String],
     nogos:              [String],
   ): BeeMuResp!
-  
+
   bee_del(
     letters:            String!,
   ): BeeMuResp!
-  
+
   guess_put(
     bee_id:             String!,
     word:               String!,
   ): GuessMuResp!
-  
+
   guess_del(
     bee_id:             String!,
     word:               String!,
   ): GuessMuResp!
-  
+
 }
 
 type Query {
@@ -74,13 +74,13 @@ type GuessMuResp {
 type GuessListResp {
   success:              Boolean!
   message:              String
-  guesses:              [Guess!]!
+  guesses:              [Guess!]
 }
 
 type BeeListPage {
   success:              Boolean!
   message:              String
-  bees:                 [Bee!]!
+  bees:                 [Bee!]
   cursor:               String
 }
 
@@ -102,8 +102,8 @@ type Guess {
 }
 
 # directive @aws_subscribe(mutations: [String]) on FIELD_DEFINITION
-# 
-# 
+#
+#
 # type Subscription {
 #   addProduct: Product
 #   @aws_subscribe(mutations: 	["productUpdate"])

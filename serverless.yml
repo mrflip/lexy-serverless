@@ -26,40 +26,44 @@ plugins:
 # frameworkVersion: "=X.X.X"
 
 provider:
-  name: aws
-  runtime: nodejs12.x
-  stage: dev
-  region: us-east-1
+  name:                 aws
+  runtime:              nodejs12.x
+  stage:                dev
+  region:               us-east-1
   environment:
-    beesTable:     ${self:custom.beesTable}
-    guessesTable:  ${self:custom.guessesTable}
+    beesTable:          ${self:custom.beesTable}
+    guessesTable:       ${self:custom.guessesTable}
+    NODE_ENV:           development
+    GRAPHQL_ENDPOINT:   "${self:custom.stage}/graphql"
+
     # stripeSecretKey: ${env:STRIPE_SECRET_KEY}
 
 custom:
-  stage:           ${opt:stage, self:provider.stage}
-  beesTable:       bees-${self:custom.stage}
-  guessesTable:    guesses-${self:custom.stage}
+  stage:                ${opt:stage, self:provider.stage}
+  beesTable:            bees-${self:custom.stage}
+  guessesTable:         guesses-${self:custom.stage}
   #
   serverless-offline:
-    port: 4000
+    port:               4000
   webpack:
-    includeModules: true
-    excludeFiles:   "*.test.*"
+    includeModules:     true
+    excludeFiles:       "*.test.*"
     keepOutputDirectory: true
-    config: 'webpack.config.cjs'
+    config:             'webpack.config.cjs'
   dynamodb:
     stages:
-      - ${self:provider.stage}
+      - local
+      - dev
     start:
-      port: 8000
-      inMemory: true
-      migrate: true
-      seed: true
+      port:             8000
+      inMemory:         true
+      migrate:          true
+      seed:             true
     # seed:
     #   test:
     #     sources:
-          # - table: ${self:custom.productsTable}
-          #   sources: [seed-data/Products.json]
+    #       - table: ${self:custom.productsTable}
+    #         sources: [seed-data/Products.json]
 
   # https://www.npmjs.com/package/serverless-domain-manager
   #
@@ -91,18 +95,29 @@ functions:
     environment:
       foo:      bar
 
+    # iamRoleStatements:
+    #   - Effect: Allow
+    #     Action:
+    #       - dynamodb:Query
+    #       - dynamodb:Scan
+    #       - dynamodb:GetItem
+    #       - dynamodb:PutItem
+    #       - dynamodb:UpdateItem
+    #       - dynamodb:DeleteItem
+    #     Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:custom.beesTable}"
+
 resources:
-  # Cognito
-  - ${file(resources/cognito-user-pool.yml)}
-  - ${file(resources/cognito-identity-pool.yml)}
-  # API Gateway Errors
-  # - ${file(resources/api-gateway-errors.yml)}
-  # DynamoDB
-  - ${file(resources/dynamodb-lexy.yml)}
-  # S3
-  - ${file(resources/s3-bucket.yml)}
   # IAM
-  - ${file(resources/iam-roles.yml)}
+  - ${file(cloud/iam-roles.yml)}
+  # Cognito
+  - ${file(cloud/cognito-user-pool.yml)}
+  - ${file(cloud/cognito-identity-pool.yml)}
+  # API Gateway
+  - ${file(cloud/api-gateway-errors.yml)}
+  # DynamoDB
+  - ${file(cloud/dynamodb-lexy.yml)}
+  # S3
+  - ${file(cloud/s3-bucket.yml)}
 
 
 #  Outputs:

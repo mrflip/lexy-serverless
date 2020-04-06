@@ -1,9 +1,10 @@
 // add to handler.js
-import { GraphQLScalarType } from 'graphql';
-import { Kind }              from 'graphql/language';
+import _                /**/ from 'lodash'
+import { GraphQLScalarType } from 'graphql'
+import { Kind }              from 'graphql/language'
 import Bee                   from '../lexy/src/lib/Bee'
-import _                     from 'lodash'
-import DynamoHelper          from './DynamoHelper'
+import DynamoHelper, { error_handler
+}                            from './DynamoHelper'
 
 const USER_ID = 'flip'
 
@@ -13,16 +14,6 @@ const GUESSES_TABLE = (process.env.guessesTable || 'GUESSES_TABLE_NOT_IN_ENV')
 const BeesDB    = new DynamoHelper(BEES_TABLE)
 const GuessesDB = new DynamoHelper(GUESSES_TABLE)
 
-const error_handler = (fn) => (
-  (error) => {
-    // console.log('eh', error)
-    return     ({
-    success: false,
-    message: `${fn} error: ${JSON.stringify(error)}`,
-    })
-  }
-)
-
 const user_bee_id = (bee_id) => [bee_id, USER_ID].join('~')
 
 const data = {
@@ -30,7 +21,8 @@ const data = {
     const bee    = {
       user_id: USER_ID, letters, datestr, guesses, nogos
     }
-    return BeesDB.put({ item: bee }).then(_ => ({
+    console.log('put', bee)
+    return BeesDB.put({ item: bee }).then(_sk => ({
       success: true,
       message: `Bee '${letters}' saved`,
       bee,
@@ -77,21 +69,27 @@ const data = {
     }).catch(error_handler('bee_get'))
   },
 
-  bee_list({ limit, cursor }) {
-    const cc = (cursor ? { user_id: USER_ID, letters: cursor } : null)
+  bee_list(params) {
+    const { limit, cursor, sortby, sortrev, ...rest } = params
+    const cc = cursor && { ...JSON.parse(cursor), user_id: USER_ID }
+    // console.log(cc, cursor, rest)
     return BeesDB.list({
-      limit, cursor: cc
+      key:              { user_id: USER_ID },
+      limit,
+      cursor:           cc,
+      sortby:           'bydatestr',
+      sortrev:          true,
     }).then(({ items, nextCursor }) => {
-      console.log('bee_list post', items, nextCursor)
-      let cur_ltrs
-      if (nextCursor) { cur_ltrs = nextCursor.letters }
-      return ({
-        success: true,
-        message: `bee_list fetched`,
-        bees:   items,
-        cursor: cur_ltrs,
-      })
-    }).catch(error_handler('bee_list'))
+      if (nextCursor) { delete nextCursor.user_id }
+      const answer = {
+        success:        true,
+        message:        `bee_list fetched`,
+        bees:           (items || []),
+        cursor:         nextCursor && JSON.stringify(nextCursor),
+      }
+      console.log('bee_list answer', answer, answer.bees.length)
+      return answer
+    }).catch(error_handler('bee_list', params))
   },
 
   guess_list({ bee_id, limit, cursor }) {
@@ -107,7 +105,7 @@ const data = {
       return ({
         success:  true,
         message:  `guesses_list fetched for ${bee_id}`,
-        guesses:  items,
+        guesses:  (items || []),
         cursor:   cur_wd,
       })
     }).catch(error_handler('guess_list'))
@@ -129,4 +127,4 @@ export const resolvers = {
     guess_put:  (_, args) => data.guess_put(args),
     guess_del:  (_, args) => data.guess_del(args),
   },
-};
+}
