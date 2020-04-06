@@ -24,18 +24,19 @@ const error_handler = (fn) => (
 )
 
 function bee_list({ limit, cursor }) {
-  const cc = (cursor ? { user_id: USER_ID, letters: cursor } : null)
+  console.log(limit, cursor)
   return BeesDB.list({
-    limit, cursor: cc
+    key:              { user_id: USER_ID },
+    limit,
+    cursor,
+    // sortby:           'bydatestr',
+    // sortrev:          true,
   }).then(({ items, nextCursor }) => {
-    // console.log('bee_list post', items, nextCursor)
-    let cur_ltrs
-    if (nextCursor) { cur_ltrs = nextCursor.letters }
     return ({
       success: true,
       message: `bee_list fetched`,
       bees:    items,
-      cursor:  cur_ltrs,
+      cursor:  nextCursor,
     })
   }).catch(error_handler('bee_list'))
 }
