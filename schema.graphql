@@ -1,4 +1,3 @@
-
 ## --------------------------------------------------
 ##
 ##  Strong Scalar Types
@@ -13,10 +12,12 @@ enum VolumeUnit { LITER, MILLILITER, OUNCEVOL, GALLON }
 
 type Mutation {
   bee_put(
-    letters:            String!,
-    datestr:            String,
-    guesses:            [String],
-    nogos:              [String],
+    letters:            String!
+    datestr:            String
+    guesses:            [String]
+    nogos:              [String]
+    nytScore:           Int
+    nytMax:             Int
   ): BeeMuResp!
 
   bee_del(
@@ -32,7 +33,6 @@ type Mutation {
     bee_id:             String!,
     word:               String!,
   ): GuessMuResp!
-
 }
 
 type Query {
@@ -44,7 +44,7 @@ type Query {
     limit:              Int
     cursor:             String
     sortby:             String
-    sortrev:            Boolean
+    sortRev:            Boolean
   ): BeeListPage!
 
   guess_list(
@@ -87,10 +87,14 @@ type BeeListPage {
 }
 
 type Bee {
-  letters:              String!,
-  datestr:              String,
-  guesses:              [String!]!,
-  nogos:                [String!]!,
+  letters:              String!
+  datestr:              String
+  updatedAt:            String
+  guesses:              [String!]!
+  nogos:                [String!]!
+  nytScore:             Int
+  nytMax:               Int
+  nytFrac:              Int
 }
 
 type Guess {

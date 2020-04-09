@@ -7,6 +7,7 @@ let dynamodb;
 //console.log(process.env);
 
 if (process.env.LOCAL_DYNAMO === 'true') {
+  console.log('Using Local Database')
   dynamodb = dynamodbClient.doc;
 } else if (process.env.USE_XRAY === 'true') {
   const AWS = AWSXRay.captureAWS(AWSSdk);
@@ -55,16 +56,17 @@ export class DynamoHelper {
       response => ({
         response,
         obj: item
-      })
+      }),
+      params
     )
   }
 
-  scan({ limit, cursor, sortby, select = 'ALL_ATTRIBUTES' }) {
+  scan({ limit, cursor, db_index, select = 'ALL_ATTRIBUTES' }) {
     const params = {
       TableName:        this.table,
       Limit:            limit,
       Select:           select,
-      IndexName:        sortby,
+      IndexName:        db_index,
       ScanIndexForward: false,
     }
     if (cursor) {
@@ -81,13 +83,13 @@ export class DynamoHelper {
     )
   }
 
-  list({ limit, cursor, key, sortby, sortrev, select = 'ALL_ATTRIBUTES' }) {
+  list({ limit, cursor, key, db_index, sortRev, select = 'ALL_ATTRIBUTES' }) {
     const params = {
       TableName:                this.table,
       Limit:                    limit,
       Select:                   select,
-      IndexName:                sortby,
-      ScanIndexForward:         (! sortrev),
+      IndexName:                db_index,
+      ScanIndexForward:         (! sortRev),
       KeyConditionExpression:   this.key_condition(key),
       ExpressionAttributeValues: this.attribute_values(key),
     }
@@ -151,11 +153,11 @@ export class DynamoHelper {
 
 }
 
-const promisify = (func, fixup) =>
+const promisify = (func, fixup, params) =>
   new Promise((resolve, reject) => {
     func((error, result) => {
       if (error) {
-        console.log('DynamoHelper error:', error)
+        console.log('DynamoHelper error:', error, params)
         reject(error);
       } else {
         resolve(fixup(result));

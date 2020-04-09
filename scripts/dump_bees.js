@@ -1,8 +1,9 @@
 #!/usr/bin/env node -r esm --harmony
-import _                   /**/ from 'lodash'
-import fs                       from 'fs'
-import DynamoHelper             from '../DynamoHelper'
-import Paths                    from './Paths'
+import _                /**/ from 'lodash'
+import fs                    from 'fs'
+import DynamoHelper          from '../DynamoHelper'
+import Paths                 from './Paths'
+import Bee                   from '../src/lib/Bee'
 
 // console.log(process.env)
 const BEES_TABLE = (process.env.beesTable || 'BEES_TABLE_NOT_IN_ENV')
@@ -29,8 +30,8 @@ function bee_list({ limit, cursor }) {
     key:              { user_id: USER_ID },
     limit,
     cursor,
-    // sortby:           'bydatestr',
-    // sortrev:          true,
+    sortby:           'by_datestr',
+    sortrev:          true,
   }).then(({ items, nextCursor }) => {
     return ({
       success: true,

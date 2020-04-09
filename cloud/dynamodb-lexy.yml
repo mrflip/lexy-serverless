@@ -18,8 +18,14 @@ Resources:
           AttributeType:        S
         - AttributeName:        datestr
           AttributeType:        S
+        - AttributeName:        nytFrac
+          AttributeType:        N
+        - AttributeName:        nytMax
+          AttributeType:        N
+        - AttributeName:        updatedAt
+          AttributeType:        S
       LocalSecondaryIndexes:
-        - IndexName:            bydatestr
+        - IndexName:            by_datestr
           KeySchema:
             - AttributeName:    user_id
               KeyType:          HASH
@@ -27,6 +33,34 @@ Resources:
               KeyType:          RANGE
           Projection:
             ProjectionType:     ALL
+
+        - IndexName:            by_nytFrac
+          KeySchema:
+            - AttributeName:    user_id
+              KeyType:          HASH
+            - AttributeName:    nytFrac
+              KeyType:          RANGE
+          Projection:
+            ProjectionType:     ALL
+
+        - IndexName:            by_nytMax
+          KeySchema:
+            - AttributeName:    user_id
+              KeyType:          HASH
+            - AttributeName:    nytMax
+              KeyType:          RANGE
+          Projection:
+            ProjectionType:     ALL
+
+        - IndexName:            by_updatedAt
+          KeySchema:
+            - AttributeName:    user_id
+              KeyType:          HASH
+            - AttributeName:    updatedAt
+              KeyType:          RANGE
+          Projection:
+            ProjectionType:     ALL
+
       BillingMode:              PAY_PER_REQUEST
       # ProvisionedThroughput:
       #   ReadCapacityUnits: 10

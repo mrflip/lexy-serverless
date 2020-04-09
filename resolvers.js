@@ -2,7 +2,7 @@
 import _                /**/ from 'lodash'
 import { GraphQLScalarType } from 'graphql'
 import { Kind }              from 'graphql/language'
-import Bee                   from '../lexy/src/lib/Bee'
+import Bee                   from './src/lib/Bee'
 import DynamoHelper, { error_handler
 }                            from './DynamoHelper'
 
@@ -17,9 +17,16 @@ const GuessesDB = new DynamoHelper(GUESSES_TABLE)
 const user_bee_id = (bee_id) => [bee_id, USER_ID].join('~')
 
 const data = {
-  bee_put({ letters, datestr, guesses = [], nogos = [] }) {
+  bee_put({ letters, datestr, guesses = [], nogos = [], nytScore, nytMax }) {
     const bee    = {
-      user_id: USER_ID, letters, datestr, guesses, nogos
+      user_id:          USER_ID,
+      updatedAt:        Bee.getDatestr(),
+      letters,
+      datestr,
+      guesses,
+      nogos,
+      nytMax,
+      nytScore,
     }
     console.log('put', bee)
     return BeesDB.put({ item: bee }).then(_sk => ({
@@ -60,7 +67,7 @@ const data = {
       key: { user_id: USER_ID, letters },
     }).then(({ obj, count }) => {
       let bee
-      if (count == 1) { bee = Bee.from(obj).serialize() }
+      if (count == 1) { bee = obj } // Bee.from(obj).serialize()
       return ({
         success: true,
         message: `Bee '${letters}' gotten`,
@@ -70,14 +77,15 @@ const data = {
   },
 
   bee_list(params) {
-    const { limit, cursor, sortby, sortrev, ...rest } = params
+    const { limit, cursor, sortby, sortRev, ...rest } = params
     const cc = cursor && { ...JSON.parse(cursor), user_id: USER_ID }
     // console.log(cc, cursor, rest)
+    db_index = (sortby === 'letters' ? undefined : `by_${sortby}`)
     return BeesDB.list({
       key:              { user_id: USER_ID },
       limit,
-      sortby,
-      sortrev,
+      db_index,
+      sortRev,
       cursor:           cc,
     }).then(({ items, nextCursor }) => {
       if (nextCursor) { delete nextCursor.user_id }
@@ -111,7 +119,6 @@ const data = {
     }).catch(error_handler('guess_list'))
   }
 }
-
 
 // eslint-disable-next-line import/prefer-default-export
 export const resolvers = {
