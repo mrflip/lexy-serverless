@@ -3,7 +3,7 @@ import _           /**/ from 'lodash'
 import fs               from 'fs'
 import Paths            from './Paths'
 import AllBees          from '../data/bees.json'
-import BeesInDB         from '../data/all_bees_bkup-latest-dev.json'
+import BeesInDB         from '../data/all_bees_bkup-latest.json'
 import DynamoHelper, { error_handler
 }                       from '../DynamoHelper'
 import Bee              from '../src/lib/Bee'

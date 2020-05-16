@@ -114,3 +114,9 @@ jspm_packages
 
 # Seed data
 seed-data/*.json
+
+data/all_bees_bkup-*dev.json*
+data/all_bees_bkup-*prod.json*
+
+data/all_bees_line-*dev.json*
+data/all_bees_line-*prod.json*
