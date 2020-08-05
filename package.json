@@ -1,6 +1,6 @@
 {
   "name": "lexy-sls",
-  "version": "0.0.0",
+  "version": "1.0.8",
   "private": true,
   "repository": {
     "type": "git",
@@ -31,7 +31,9 @@
     "graphql-scalars": "^1.0.6",
     "lodash": "^4.17.15",
     "serverless-domain-manager": "^3.3.1",
-    "serverless-dynamodb-client": "^0.0.2"
+    "serverless-dynamodb-client": "^0.0.2",
+    "standard-version": "^7.1.0",
+    "standard-version-expo": "^1.0.1"
   },
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.8.3",
