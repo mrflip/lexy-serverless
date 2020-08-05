@@ -25,21 +25,9 @@ plugins:
 # Check out our docs for more details
 # frameworkVersion: "=X.X.X"
 
-provider:
-  name:                 aws
-  runtime:              nodejs12.x
-  stage:                dev
-  region:               us-east-1
-  environment:
-    beesTable:          ${self:custom.beesTable}
-    guessesTable:       ${self:custom.guessesTable}
-    NODE_ENV:           development
-    GRAPHQL_ENDPOINT:   "${self:custom.stage}/graphql"
-
-    # stripeSecretKey: ${env:STRIPE_SECRET_KEY}
-
 custom:
   stage:                ${opt:stage, self:provider.stage}
+  stage_reg:           "${self:custom.stage}-${self:provider.region}"
   beesTable:            bees-${self:custom.stage}
   guessesTable:         guesses-${self:custom.stage}
   #
@@ -78,6 +66,20 @@ custom:
   #   createRoute53Record: true
   #   endpointType: 'regional'
   #   securityPolicy: tls_1_2
+
+provider:
+  name:                 aws
+  runtime:              nodejs12.x
+  stage:                dev
+  region:               us-east-1
+  deployBucket:        "sls-lexy-${self:custom.stage_reg}"
+  environment:
+    beesTable:          ${self:custom.beesTable}
+    guessesTable:       ${self:custom.guessesTable}
+    NODE_ENV:           development
+    GRAPHQL_ENDPOINT:   "${self:custom.stage}/graphql"
+
+    # stripeSecretKey: ${env:STRIPE_SECRET_KEY}
 
 functions:
   graphql:

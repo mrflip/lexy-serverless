@@ -14,6 +14,27 @@ const BATCH_SIZE   = 40
 
 const USER_ID = 'flip'
 
+// in lexy-bee
+// ./scripts/parse_nytbee.js
+//
+// # choose the one that is CURRENT -- see about screen. AWS_PROFILE
+// # selects section from ~/.aws/credentials:
+//
+// export stage=dev
+// export AWS_PROFILE=tksm; export AWS_REGION=us-east-1
+//
+// LOCAL_DYNAMO=false beesTable=bees-${stage} ./scripts/dump_bees.js
+//
+// Once you're ready,
+//
+// cp ./data/all_bees_bkup-TODAYSDATE-${stage}.json ./data/all_bees_latest.json
+//
+// # choose the OTHER stage, and update lexy-bee/Secrets.js
+// export stage=prod
+//
+// LOCAL_DYNAMO=false beesTable=bees-dev ./scripts/load_bees.js
+//
+
 const error_handler = (fn) => (
   (error) => {
     console.log('eh', error)
@@ -25,7 +46,6 @@ const error_handler = (fn) => (
 )
 
 function bee_list({ limit, cursor }) {
-  console.log(limit, cursor)
   return BeesDB.list({
     key:              { user_id: USER_ID },
     limit,
@@ -50,7 +70,6 @@ let stream = {
   async *[Symbol.asyncIterator](next) {
     do {
       let batch = await bee_list({ limit: this.limit, cursor: this.cursor })
-      // console.log('hi', batch)
       if (! batch.success) {
         console.log('error', batch, this.cursor)
         break
@@ -67,8 +86,8 @@ async function backup_bees() {
   const all_writer   = fs.createWriteStream(Paths.bee_bkup_file, { encoding: 'utf8'})
   const all_bees = {}
   let count = 0
+  console.log(Paths)
   for await (let val of stream) {
-    // console.log('got', val)
     // ProductDynamo.delete({ key: { id: val.id } })
     jsonl_writer.write([JSON.stringify(val), "\n"].join(''))
     all_bees[val.letters] = val
