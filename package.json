@@ -1,6 +1,6 @@
 {
   "name": "lexy-sls",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "private": true,
   "repository": {
     "type": "git",
@@ -14,6 +14,7 @@
     "seed-products-local": "env-cmd -f ./.secrets.env.local node -r esm ./seed-data/import_product_csv.js",
     "dyloc-start": "serverless dynamo start",
     "start": "serverless dynamodb install && yarn launch",
+    "release": "standard-version --release-as patch",
     "launch": "env-cmd -f ./.secrets.env.local serverless offline start",
     "deploy-dev": "env-cmd -f ./.secrets.env.dev   serverless --aws-s3-accelerate --stage=dev  deploy && yarn seed-aws",
     "deploy-prod": "env-cmd -f ./.secrets.env.prod  serverless --aws-s3-accelerate --stage=prod deploy && yarn seed-aws",
@@ -31,9 +32,7 @@
     "graphql-scalars": "^1.0.6",
     "lodash": "^4.17.15",
     "serverless-domain-manager": "^3.3.1",
-    "serverless-dynamodb-client": "^0.0.2",
-    "standard-version": "^7.1.0",
-    "standard-version-expo": "^1.0.1"
+    "serverless-dynamodb-client": "^0.0.2"
   },
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.8.3",
@@ -56,6 +55,8 @@
     "serverless-dynamodb-local": "^0.2.39",
     "serverless-offline": "^5.12.1",
     "serverless-webpack": "^5.3.1",
+    "standard-version": "^7.1.0",
+    "standard-version-expo": "^1.0.1",
     "webpack": "^4.41.5",
     "webpack-node-externals": "^1.7.2"
   }
