@@ -24,7 +24,7 @@
     "seed-migrate": "env-cmd -f ./.secrets.env.dev  serverless --stage=dev  dynamodb migrate"
   },
   "dependencies": {
-    "apollo-server-lambda": "^2.9.16",
+    "apollo-server-lambda": "^2.14.2",
     "aws-xray-sdk": "^2.5.0",
     "babel-polyfill": "^6.26.0",
     "esm": "^3.2.25",
